@@ -1,4 +1,4 @@
-package dat250.msd.FeedApp;
+package dat250.msd.FeedApp.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
