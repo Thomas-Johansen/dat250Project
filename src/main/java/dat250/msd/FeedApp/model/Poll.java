@@ -7,36 +7,25 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.List;
 
-@Entity
 @Getter
+@Entity
 public class Poll {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
     @Setter
     private String name;
 
-    @Getter
-    @Setter
-    private Date startDate;
-
-    @Getter
-    @Setter
-    private Date endDate;
-
-    @Getter
-    @Setter
-    private String roomId;
-
-    @Getter
     @Setter
     @ManyToOne
     private UserData owner;
 
-    @Getter
     @Setter
-    @OneToMany(mappedBy = "poll")
-    private List<Vote> votes;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Instance> instance;
+
+    @Setter
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    private List<VoteOption> voteOptions;
 }

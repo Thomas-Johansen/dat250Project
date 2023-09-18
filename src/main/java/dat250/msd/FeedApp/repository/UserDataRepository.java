@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserDataRepository extends JpaRepository<UserData,Long> {
     //TODO Define custom query methods if needed
+
+    UserData getUserDataByUsernameAndPassword(String username, String password);
 }

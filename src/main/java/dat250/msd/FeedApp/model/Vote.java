@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 public class Vote {
@@ -11,13 +13,15 @@ public class Vote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
     @Setter
     @ManyToOne
-    private Poll poll;
+    private Instance instance;
 
-    @Getter
     @Setter
-    private String name;
+    @ManyToOne
+    private VoteOption voteOption;
 
+    @Setter
+    @ManyToOne
+    private UserData voter;
 }
