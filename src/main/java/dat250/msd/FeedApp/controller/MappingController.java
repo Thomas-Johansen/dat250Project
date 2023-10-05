@@ -11,7 +11,7 @@ import dat250.msd.FeedApp.service.FeedAppService;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class MappingController
 {
     private final FeedAppService feedAppService;
