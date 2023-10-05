@@ -9,8 +9,12 @@ import java.util.List;
 
 @Repository
 public interface PollRepository extends JpaRepository<Poll,Long> {
-    //TODO Define custom query methods if needed
+    /**
+     * Get every poll that is owned by a user.
+     * @param owner User that has created/owns the poll
+     * @return list of owned polls
+     * */
     List<Poll> getPollsByOwner(UserData owner);
 
-    //Poll getPollByRoomCode(String roomCode);
+
 }
