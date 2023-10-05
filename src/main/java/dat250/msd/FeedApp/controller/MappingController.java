@@ -1,6 +1,7 @@
 package dat250.msd.FeedApp.controller;
 
 import dat250.msd.FeedApp.model.UserData;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +18,17 @@ public class MappingController
         this.feedAppService = feedAppService;
     }
 
+    @PostMapping("/user")
+    public UserData createUser(@RequestBody UserData user){
+        return feedAppService.createUser(user);
+    }
     @GetMapping("/users")
     @ResponseBody
     public List<UserData> getAllUsers() {
         return feedAppService.getAllUsers();
     }
     @GetMapping("/user")
-    public UserData getUser(@RequestAttribute String username, @RequestAttribute String pwd){
+    public UserData getUser(@RequestParam String username, @RequestParam String pwd){
         return feedAppService.getUser(username, pwd);
     }
     @PutMapping("/user")

@@ -28,6 +28,10 @@ public class FeedAppService {
         this.voteOptionRepository = voteOptionRepository;
     }
 
+    public UserData createUser(UserData user){
+        userDataRepository.save(user);
+        return user;
+    }
     public List<UserData> getAllUsers() {
         return userDataRepository.findAll();
     }
@@ -43,5 +47,10 @@ public class FeedAppService {
             return user;
         }
         throw new IllegalArgumentException();
+    }
+    public UserData updateMail(UserData user, String email){
+        user.setEmail(email);
+        userDataRepository.save(user);
+        return user;
     }
 }

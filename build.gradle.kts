@@ -30,6 +30,8 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	//testImplementation("org.springframework.security:spring-security-test")
+	implementation("com.google.code.gson:gson:2.9.0")
+	implementation("com.squareup.okhttp3:okhttp:4.11.0")
 }
 
 tasks.withType<Test> {
