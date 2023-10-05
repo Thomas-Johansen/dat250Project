@@ -3,6 +3,7 @@ package dat250.msd.FeedApp.service;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.repository.*;
 import lombok.Getter;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,17 @@ public class FeedAppService {
     public List<UserData> getAllUsers() {
         return userDataRepository.findAll();
     }
-
+    public UserData getUser(String username, String pwd) {
+        return userDataRepository.getUserDataByUsernameAndPassword(username, pwd);}
+    public UserData updatePassword(Long user_id, String old_pwd, String new_pwd){
+        UserData user = userDataRepository.getUserDataById(user_id);
+        //TODO: old_pwd needs to be hashed to match the stored password.
+        if(old_pwd.equals(user.getPassword())){
+            //TODO: Hash new pwd
+            user.setPassword(new_pwd);
+            userDataRepository.save(user);
+            return user;
+        }
+        throw new IllegalArgumentException();
+    }
 }
