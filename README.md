@@ -1,5 +1,6 @@
 # Dat250Project
 
+[![FeedApp Tests](../../actions/workflows/gradle.yml/badge.svg)](../../actions/workflows/gradle.yml)
 
 #### Todo:
 - [x] Create Use Case Diagram
