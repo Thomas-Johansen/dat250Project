@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootApplication(scanBasePackages = "dat250.msd.FeedApp")
@@ -43,8 +44,10 @@ public class FeedAppApplication {
 
         Instance instance = new Instance();
         instance.setRoomCode("1234");
-        instance.setPoll(poll);
+        instance.setStartDate(LocalDateTime.now());
+        instance.setEndDate(LocalDateTime.of(2023, 12, 24,12,0));
 
+        instance.setPoll(poll);
 
         VoteOption voteOption = new VoteOption();
         voteOption.setLabel("Toast");
@@ -57,10 +60,8 @@ public class FeedAppApplication {
 
         user.setPolls(List.of(poll));
 
-
-        poll.setInstance(List.of(instance));
+        poll.setInstances(List.of(instance));
         poll.setVoteOptions(List.of(voteOption));
-
 
         // save users
         userRepo.save(user);
@@ -68,9 +69,8 @@ public class FeedAppApplication {
 
         pollRepo.save(poll);
         voteRepo.save(vote);
-        //instanceRepo.save(instance); //Jpa class is set to Cascade.ALL
-        //voteOptionRepo.save(voteOption); //Jpa class is set to Cascade.ALL
-
+        //instanceRepo.save(instance);     //Jpa class is set to Cascade.ALL by Poll
+        //voteOptionRepo.save(voteOption); //Jpa class is set to Cascade.ALL by Poll
 
         UserData retrieveUser = userRepo.getUserDataByUsernameAndPassword("Testuser1","123");
         System.out.println(retrieveUser.getUsername());
@@ -78,14 +78,7 @@ public class FeedAppApplication {
         Instance instance1 = instanceRepo.getInstanceByRoomCode("1234");
         System.out.println(instance1.getPoll().getName());
 
-        // fetch users
-        //for (UserData userData : userRepo.findAll()) {
-        //		System.out.println("user:");
-        //	System.out.println(userData.toString());
-        //}
-
-        return args -> {
-        };
+        return args -> {};
     }
 
 }

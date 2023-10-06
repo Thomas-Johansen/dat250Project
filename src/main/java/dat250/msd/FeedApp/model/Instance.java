@@ -1,13 +1,17 @@
 package dat250.msd.FeedApp.model;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Instance {
 
     @Id
@@ -15,15 +19,16 @@ public class Instance {
     private Long id;
 
     @Setter
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Poll poll;
 
     @Setter
+    @Column(unique = true)
     private String roomCode;
 
     @Setter
-    private Date startDate;
+    private LocalDateTime startDate;
 
     @Setter
-    private Date endDate;
+    private LocalDateTime endDate;
 }

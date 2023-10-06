@@ -16,5 +16,5 @@ public interface PollRepository extends JpaRepository<Poll,Long> {
      * */
     List<Poll> getPollsByOwner(UserData owner);
 
-
+    Poll getPollById(Long id);
 }

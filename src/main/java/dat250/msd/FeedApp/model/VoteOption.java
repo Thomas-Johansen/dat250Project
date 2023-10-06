@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -16,6 +17,7 @@ public class VoteOption {
 
     @Setter
     @ManyToOne
+    @JsonBackReference("poll-voteOptions")
     private Poll poll;
 
     @Setter

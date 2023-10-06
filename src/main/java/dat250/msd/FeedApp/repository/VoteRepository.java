@@ -33,4 +33,6 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
      * @return a list votes
      * */
     List<Vote> getVotesByVoter(UserData voter);
+
+    List<Vote> getVotesByInstance(Instance instance);
 }

@@ -11,4 +11,10 @@ public interface InstanceRepository extends JpaRepository<Instance, Long> {
      * @return instance
      * */
     Instance getInstanceByRoomCode(String roomCode);
+
+    /**
+     * Get instance using id
+     * The build in getReferenceById() does only a lazy fetch (only reference)
+     * */
+    Instance getInstanceById(Long instanceId);
 }

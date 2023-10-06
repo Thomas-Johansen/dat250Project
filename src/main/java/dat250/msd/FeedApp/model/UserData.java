@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class UserData {
 
     @Getter
     @Setter
+    @Column(unique = true)
     private String username;
 
     @Getter
@@ -28,5 +30,6 @@ public class UserData {
     @Getter
     @Setter
     @OneToMany(mappedBy = "owner")
+    @JsonManagedReference(value = "user-poll")
     private List<Poll> polls;
 }
