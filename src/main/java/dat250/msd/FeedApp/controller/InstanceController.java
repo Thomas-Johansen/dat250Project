@@ -2,11 +2,8 @@ package dat250.msd.FeedApp.controller;
 
 import dat250.msd.FeedApp.model.Instance;
 import dat250.msd.FeedApp.model.Poll;
-import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.service.FeedAppService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class InstanceController {
@@ -66,17 +63,29 @@ public class InstanceController {
         return feedAppService.getInstanceRepository().getInstanceByRoomCode(roomCode);
     }
 
-    //@PutMapping("/instance")
+    /**
+     * Update date of instance
+     * {
+     *     "startDate":"2020-01-12T12:00:00",
+     *     "endDate":  "2023-12-24T12:00:00"
+     * }
+     * */
+    @PutMapping("/instance")
+    public Instance updateInstance(@RequestParam Long id, @RequestBody Instance updateInstance){
+        Instance instance = feedAppService.getInstanceRepository().getInstanceById(id);
+
+        instance.setStartDate(updateInstance.getStartDate());
+        instance.setEndDate(updateInstance.getEndDate());
+        feedAppService.getInstanceRepository().save(instance);
+
+        return feedAppService.getInstanceRepository().getInstanceById(id);
+    }
 
     @DeleteMapping("/instance")
     public Instance deleteInstance(@RequestParam String roomCode){
         Instance instance = feedAppService.getInstanceRepository().getInstanceByRoomCode(roomCode);
 
-        //Remove votes from instance
-        List<Vote> votes = feedAppService.getVoteRepository().getVotesByInstance(instance);
-        for (Vote vote : votes){
-            feedAppService.getVoteRepository().delete(vote);
-        }
+        feedAppService.removeVotes(instance);
 
         feedAppService.getInstanceRepository().delete(instance);
         return instance;

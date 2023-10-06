@@ -1,6 +1,8 @@
 package dat250.msd.FeedApp.service;
 
+import dat250.msd.FeedApp.model.Instance;
 import dat250.msd.FeedApp.model.UserData;
+import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.repository.*;
 import lombok.Getter;
 import org.apache.catalina.User;
@@ -52,5 +54,11 @@ public class FeedAppService {
         user.setEmail(email);
         userDataRepository.save(user);
         return user;
+    }
+
+    public void removeVotes(Instance instance) {
+        //Remove votes from instance
+        List<Vote> votes = voteRepository.getVotesByInstance(instance);
+        voteRepository.deleteAll(votes);
     }
 }

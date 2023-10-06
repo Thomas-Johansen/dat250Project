@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class MappingControllerTest {
+public class UserControllerTest {
     @LocalServerPort
     private int port;
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");

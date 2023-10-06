@@ -22,4 +22,13 @@ public class VoteOption {
 
     @Setter
     private String label;
+
+    public VoteOption(Poll poll, String label) {
+        this.poll = poll;
+        this.label = label;
+    }
+
+    public VoteOption() {
+
+    }
 }

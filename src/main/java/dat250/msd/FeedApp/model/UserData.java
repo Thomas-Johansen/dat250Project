@@ -21,11 +21,11 @@ public class UserData {
 
     @Getter
     @Setter
-    private String email;
+    private String password;
 
     @Getter
     @Setter
-    private String password;
+    private String email;
 
     @Getter
     @Setter
