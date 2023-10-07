@@ -42,11 +42,11 @@ public class TopicControllerTest {
         return "http://localhost:" + port + "/";
     }
     private String doPostRequest(UserData userData, Topic topic) throws JsonProcessingException {
-        //RequestBody body = RequestBody.create(gson.toJson(poll), JSON);
+        //RequestBody body = RequestBody.create(gson.toJson(topic), JSON);
         RequestBody body = RequestBody.create(objectMapper.writeValueAsString(topic),JSON);
 
         Request request = new Request.Builder()
-                .url(getBaseURL() + "poll?username="+userData.getUsername()+"&pwd="+userData.getPassword())
+                .url(getBaseURL() + "topic?username="+userData.getUsername()+"&pwd="+userData.getPassword())
                 .post(body).build();
         return doRequest(request);
     }
@@ -59,7 +59,7 @@ public class TopicControllerTest {
     }
 
     private String doGetRequest(Long id) {
-        return this.doGetRequest(getBaseURL() + "poll"+ "?id="+id);
+        return this.doGetRequest(getBaseURL() + "topic"+ "?id="+id);
     }
 
     private String doGetRequest(String url) {
@@ -71,7 +71,7 @@ public class TopicControllerTest {
     }
 
     @Test
-    void testCreatePoll() throws JsonProcessingException {
+    void testCreateTopic() throws JsonProcessingException {
         final UserData user = new UserData();
         user.setUsername("Ben");
         user.setPassword("12321");
@@ -79,7 +79,7 @@ public class TopicControllerTest {
         userDataRepository.save(user);
 
         Topic topic = new Topic();
-        topic.setName("Ben's Amazing Poll");
+        topic.setName("Ben's Amazing Topic");
         topic.setVoteOptions(List.of(new VoteOption(topic,"Cool"),new VoteOption(topic,"Lame")));
 
         String postResponse = doPostRequest(user, topic);
@@ -87,20 +87,20 @@ public class TopicControllerTest {
 
         Topic returnedTopic = objectMapper.readValue(postResponse, Topic.class);
 
-        System.out.println("The poll name is "+ returnedTopic.getName());
-        //assertNotNull(poll.getName());
+        System.out.println("The topic name is "+ returnedTopic.getName());
+        //assertNotNull(topic.getName());
         assertEquals("Cool", returnedTopic.getVoteOptions().get(0).getLabel());
     }
 
     @Test
-    void testGetPoll() throws JsonProcessingException {
+    void testGetTopic() throws JsonProcessingException {
         final UserData user = new UserData();
         user.setUsername("Jim");
         user.setPassword("1337");
         user.setEmail("jimsi@mailinator.com");
 
         Topic topic = new Topic();
-        topic.setName("Jim's Not So Amazing Poll");
+        topic.setName("Jim's Not So Amazing Topic");
         topic.setVoteOptions(List.of(new VoteOption(topic,"1"),new VoteOption(topic,"2")));
         topic.setOwner(user);
 
@@ -113,7 +113,7 @@ public class TopicControllerTest {
         System.out.println(response);
 
         Topic returnedTopic = objectMapper.readValue(response, Topic.class);
-        System.out.println("The poll is: "+ returnedTopic.getName());
+        System.out.println("The topic is: "+ returnedTopic.getName());
 
         assertEquals(topic.getName(), returnedTopic.getName());
     }
