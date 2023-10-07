@@ -17,27 +17,20 @@ public class VoteController {
         this.feedAppService = feedAppService;
     }
 
-    /**
-     * Returns all the votes of a given instance
-     * @param instance
-     * @return
-     */
-    @GetMapping()
+    @GetMapping("/vote")
     public List<Vote> getVotes(@RequestParam(required = true) Instance instance){
         return feedAppService.getVoteRepository().getVotesByInstance(instance);
     }
 
-    @PostMapping()
-    public Vote createVote(@RequestParam(required = true) Instance instance, @RequestParam(required = true) VoteOption voteOption, @RequestParam(required = false) UserData user){
+    @PostMapping("/vote")
+    public Vote createVote(@RequestBody Vote vote){
         // If the requirement for a user to at most have one vote per instance
         // just add a check within this command.
-        Vote vote = new Vote();
-        vote.setInstance(instance);vote.setVoteOption(voteOption);vote.setVoter(user);
         feedAppService.getVoteRepository().save(vote);
         return vote;
     }
 
-    @PutMapping()
+    @PutMapping("/vote")
     public Vote updateVote(@RequestBody Vote vote, @RequestBody VoteOption option){
         vote.setVoteOption(option);
         feedAppService.getVoteRepository().save(vote);
