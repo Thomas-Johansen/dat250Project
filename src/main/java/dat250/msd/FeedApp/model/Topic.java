@@ -30,12 +30,12 @@ public class Topic {
     private UserData owner;
 
     @Setter
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     @JsonIdentityReference(alwaysAsId = true)
     private List<Poll> polls;
 
     @Setter
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "poll-voteOptions")
     private List<VoteOption> voteOptions;
 }
