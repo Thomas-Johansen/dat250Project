@@ -1,4 +1,4 @@
-package dat250.msd.FeedApp;
+package dat250.msd.FeedApp.ControllerTests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
