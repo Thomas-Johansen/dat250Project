@@ -26,5 +26,6 @@ public class UserController
     public UserData updateUser(@RequestAttribute UserData user, @RequestAttribute String username,@RequestAttribute String pwd,@RequestAttribute String email){
         return feedAppService.updatePassword(user.getId(), user.getPassword(), pwd);
     }
+
 }
 
