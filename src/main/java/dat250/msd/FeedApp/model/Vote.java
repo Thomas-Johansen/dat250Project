@@ -13,7 +13,7 @@ public class Vote {
 
     @Setter
     @ManyToOne
-    private Instance instance;
+    private Poll poll;
 
     @Setter
     @ManyToOne

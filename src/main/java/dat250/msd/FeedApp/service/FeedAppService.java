@@ -1,11 +1,10 @@
 package dat250.msd.FeedApp.service;
 
-import dat250.msd.FeedApp.model.Instance;
+import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.repository.*;
 import lombok.Getter;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +14,18 @@ import java.util.List;
 @Service
 public class FeedAppService {
     private final UserDataRepository userDataRepository;
+    private final TopicRepository topicRepository;
     private final PollRepository pollRepository;
-    private final InstanceRepository instanceRepository;
     private final VoteRepository voteRepository;
     private final VoteOptionRepository voteOptionRepository;
 
     @Autowired
-    public FeedAppService(UserDataRepository userDataRepository, PollRepository pollRepository, VoteRepository voteRepository, InstanceRepository instanceRepository, VoteOptionRepository voteOptionRepository)
+    public FeedAppService(UserDataRepository userDataRepository, TopicRepository topicRepository, VoteRepository voteRepository, PollRepository pollRepository, VoteOptionRepository voteOptionRepository)
     {
         this.userDataRepository = userDataRepository;
-        this.pollRepository = pollRepository;
+        this.topicRepository = topicRepository;
         this.voteRepository = voteRepository;
-        this.instanceRepository = instanceRepository;
+        this.pollRepository = pollRepository;
         this.voteOptionRepository = voteOptionRepository;
     }
 
@@ -56,9 +55,9 @@ public class FeedAppService {
         return user;
     }
 
-    public void removeVotes(Instance instance) {
-        //Remove votes from instance
-        List<Vote> votes = voteRepository.getVotesByInstance(instance);
+    public void removeVotes(Poll poll) {
+        //Remove votes from poll
+        List<Vote> votes = voteRepository.getVotesByPoll(poll);
         voteRepository.deleteAll(votes);
     }
 }

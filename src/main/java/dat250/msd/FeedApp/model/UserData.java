@@ -31,5 +31,5 @@ public class UserData {
     @Setter
     @OneToMany(mappedBy = "owner")
     @JsonManagedReference(value = "user-poll")
-    private List<Poll> polls;
+    private List<Topic> topics;
 }

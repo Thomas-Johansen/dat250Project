@@ -21,9 +21,9 @@ public class FeedAppApplication {
     public CommandLineRunner createObjects(FeedAppService feedAppService) {
         // Get tables
         UserDataRepository userRepo = feedAppService.getUserDataRepository();
-        PollRepository pollRepo = feedAppService.getPollRepository();
+        TopicRepository pollRepo = feedAppService.getTopicRepository();
         VoteRepository voteRepo = feedAppService.getVoteRepository();
-        InstanceRepository instanceRepo = feedAppService.getInstanceRepository();
+        PollRepository instanceRepo = feedAppService.getPollRepository();
         VoteOptionRepository voteOptionRepo = feedAppService.getVoteOptionRepository();
 
 
@@ -38,36 +38,36 @@ public class FeedAppApplication {
         user2.setPassword("42");
 
         //TODO make constructor / create service creation method
+        Topic topic = new Topic();
+        topic.setOwner(user);
+        topic.setName("TestPoll");
+
         Poll poll = new Poll();
-        poll.setOwner(user);
-        poll.setName("TestPoll");
+        poll.setRoomCode("1234");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.of(2023, 12, 24,12,0));
 
-        Instance instance = new Instance();
-        instance.setRoomCode("1234");
-        instance.setStartDate(LocalDateTime.now());
-        instance.setEndDate(LocalDateTime.of(2023, 12, 24,12,0));
-
-        instance.setPoll(poll);
+        poll.setTopic(topic);
 
         VoteOption voteOption = new VoteOption();
         voteOption.setLabel("Toast");
-        voteOption.setPoll(poll);
+        voteOption.setTopic(topic);
 
         Vote vote = new Vote();
-        vote.setInstance(instance);
+        vote.setPoll(poll);
         vote.setVoteOption(voteOption);
         vote.setVoter(user);
 
-        user.setPolls(List.of(poll));
+        user.setTopics(List.of(topic));
 
-        poll.setInstances(List.of(instance));
-        poll.setVoteOptions(List.of(voteOption));
+        topic.setPolls(List.of(poll));
+        topic.setVoteOptions(List.of(voteOption));
 
         // save users
         userRepo.save(user);
         userRepo.save(user2);
 
-        pollRepo.save(poll);
+        pollRepo.save(topic);
         voteRepo.save(vote);
         //instanceRepo.save(instance);     //Jpa class is set to Cascade.ALL by Poll
         //voteOptionRepo.save(voteOption); //Jpa class is set to Cascade.ALL by Poll
@@ -75,8 +75,8 @@ public class FeedAppApplication {
         UserData retrieveUser = userRepo.getUserDataByUsernameAndPassword("Testuser1","123");
         System.out.println(retrieveUser.getUsername());
 
-        Instance instance1 = instanceRepo.getInstanceByRoomCode("1234");
-        System.out.println(instance1.getPoll().getName());
+        Poll poll1 = instanceRepo.getPollByRoomCode("1234");
+        System.out.println(poll1.getTopic().getName());
 
         return args -> {};
     }

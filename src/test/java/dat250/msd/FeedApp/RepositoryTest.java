@@ -1,8 +1,8 @@
 package dat250.msd.FeedApp;
 
 import dat250.msd.FeedApp.model.*;
-import dat250.msd.FeedApp.repository.InstanceRepository;
 import dat250.msd.FeedApp.repository.PollRepository;
+import dat250.msd.FeedApp.repository.TopicRepository;
 import dat250.msd.FeedApp.repository.UserDataRepository;
 import dat250.msd.FeedApp.repository.VoteRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,17 +24,17 @@ public class RepositoryTest {
     private UserDataRepository userDataRepository;
 
     @Autowired
-    private PollRepository pollRepository;
+    private TopicRepository topicRepository;
 
     @Autowired
-    private InstanceRepository instanceRepository;
+    private PollRepository pollRepository;
 
     @Autowired
     private VoteRepository voteRepository;
 
     private UserData testUser;
+    private Topic topic;
     private Poll poll;
-    private Instance instance;
 
     @BeforeAll
     public void setup(){
@@ -43,29 +43,29 @@ public class RepositoryTest {
         testUser.setPassword("123");
         testUser.setEmail("john@test.com");
 
+        topic = new Topic();
+        topic.setName("Test Poll");
+        topic.setOwner(testUser);
+
+        VoteOption optionYes = new VoteOption(topic, "Yes");
+        VoteOption optionNo = new VoteOption(topic, "No");
+        VoteOption optionMaybe = new VoteOption(topic,"Maybe");
+        topic.setVoteOptions(List.of(optionYes,optionNo,optionMaybe));
+
         poll = new Poll();
-        poll.setName("Test Poll");
-        poll.setOwner(testUser);
+        poll.setTopic(topic);
+        poll.setRoomCode("1984");
 
-        VoteOption optionYes = new VoteOption(poll, "Yes");
-        VoteOption optionNo = new VoteOption(poll, "No");
-        VoteOption optionMaybe = new VoteOption(poll,"Maybe");
-        poll.setVoteOptions(List.of(optionYes,optionNo,optionMaybe));
-
-        instance = new Instance();
-        instance.setPoll(poll);
-        instance.setRoomCode("1984");
-
-        poll.setInstances(List.of(instance));
+        topic.setPolls(List.of(poll));
 
         Vote vote = new Vote();
         vote.setVoteOption(optionYes);
         vote.setVoter(testUser);
-        vote.setInstance(instance);
+        vote.setPoll(poll);
 
         // Save all the instances | Poll cascades to: Poll -> VoteOption(s) && Poll -> Instance(s)
         userDataRepository.save(testUser);
-        pollRepository.save(poll);
+        topicRepository.save(topic);
         voteRepository.save(vote);
     }
 
@@ -84,14 +84,14 @@ public class RepositoryTest {
 
     @Test
     public void testPoll(){
-        assertEquals(poll.getName(), pollRepository.getPollsByOwner(testUser).get(0).getName());
-        assertEquals(instance.getPoll().getId() ,instanceRepository.getInstanceByRoomCode("1984").getPoll().getId());
+        assertEquals(topic.getName(), topicRepository.getTopicsByOwner(testUser).get(0).getName());
+        assertEquals(poll.getTopic().getId() , pollRepository.getPollByRoomCode("1984").getTopic().getId());
     }
 
     @Test
     public void testVote(){
-        assertEquals(1,voteRepository.countByInstance(instance));
-        assertEquals(1,voteRepository.countByInstanceAndVoteOption(instance, instance.getPoll().getVoteOptions().get(0)));
-        assertEquals(0,voteRepository.countByInstanceAndVoteOption(instance, instance.getPoll().getVoteOptions().get(1)));
+        assertEquals(1,voteRepository.countByPoll(poll));
+        assertEquals(1,voteRepository.countByPollAndVoteOption(poll, poll.getTopic().getVoteOptions().get(0)));
+        assertEquals(0,voteRepository.countByPollAndVoteOption(poll, poll.getTopic().getVoteOptions().get(1)));
     }
 }

@@ -1,20 +1,20 @@
 package dat250.msd.FeedApp.repository;
 
 import dat250.msd.FeedApp.model.Poll;
-import dat250.msd.FeedApp.model.UserData;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
+public interface PollRepository extends JpaRepository<Poll, Long> {
 
-@Repository
-public interface PollRepository extends JpaRepository<Poll,Long> {
     /**
-     * Get every poll that is owned by a user.
-     * @param owner User that has created/owns the poll
-     * @return list of owned polls
+     * Get the topic poll by using the roomCode
+     * @param roomCode code for the poll
+     * @return poll
      * */
-    List<Poll> getPollsByOwner(UserData owner);
+    Poll getPollByRoomCode(String roomCode);
 
-    Poll getPollById(Long id);
+    /**
+     * Get poll using id
+     * The build in getReferenceById() does only a lazy fetch (only reference)
+     * */
+    Poll getPollById(Long instanceId);
 }

@@ -2,11 +2,10 @@ package dat250.msd.FeedApp.ControllerTests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import dat250.msd.FeedApp.model.Poll;
+import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.VoteOption;
-import dat250.msd.FeedApp.repository.PollRepository;
+import dat250.msd.FeedApp.repository.TopicRepository;
 import dat250.msd.FeedApp.repository.UserDataRepository;
 import okhttp3.*;
 import org.junit.jupiter.api.Test;
@@ -26,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class PollControllerTest {
+public class TopicControllerTest {
     @Autowired
     private UserDataRepository userDataRepository;
 
     @Autowired
-    private PollRepository pollRepository;
+    private TopicRepository topicRepository;
 
     @LocalServerPort
     private int port;
@@ -42,9 +41,9 @@ public class PollControllerTest {
     private String getBaseURL() {
         return "http://localhost:" + port + "/";
     }
-    private String doPostRequest(UserData userData, Poll poll) throws JsonProcessingException {
+    private String doPostRequest(UserData userData, Topic topic) throws JsonProcessingException {
         //RequestBody body = RequestBody.create(gson.toJson(poll), JSON);
-        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(poll),JSON);
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(topic),JSON);
 
         Request request = new Request.Builder()
                 .url(getBaseURL() + "poll?username="+userData.getUsername()+"&pwd="+userData.getPassword())
@@ -79,18 +78,18 @@ public class PollControllerTest {
         user.setEmail("test@gmail.com");
         userDataRepository.save(user);
 
-        Poll poll = new Poll();
-        poll.setName("Ben's Amazing Poll");
-        poll.setVoteOptions(List.of(new VoteOption(poll,"Cool"),new VoteOption(poll,"Lame")));
+        Topic topic = new Topic();
+        topic.setName("Ben's Amazing Poll");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"Cool"),new VoteOption(topic,"Lame")));
 
-        String postResponse = doPostRequest(user,poll);
+        String postResponse = doPostRequest(user, topic);
         System.out.println(postResponse);
 
-        Poll returnedPoll = objectMapper.readValue(postResponse,Poll.class);
+        Topic returnedTopic = objectMapper.readValue(postResponse, Topic.class);
 
-        System.out.println("The poll name is "+ returnedPoll.getName());
+        System.out.println("The poll name is "+ returnedTopic.getName());
         //assertNotNull(poll.getName());
-        assertEquals("Cool",returnedPoll.getVoteOptions().get(0).getLabel());
+        assertEquals("Cool", returnedTopic.getVoteOptions().get(0).getLabel());
     }
 
     @Test
@@ -100,22 +99,22 @@ public class PollControllerTest {
         user.setPassword("1337");
         user.setEmail("jimsi@mailinator.com");
 
-        Poll poll = new Poll();
-        poll.setName("Jim's Not So Amazing Poll");
-        poll.setVoteOptions(List.of(new VoteOption(poll,"1"),new VoteOption(poll,"2")));
-        poll.setOwner(user);
+        Topic topic = new Topic();
+        topic.setName("Jim's Not So Amazing Poll");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"1"),new VoteOption(topic,"2")));
+        topic.setOwner(user);
 
-        user.setPolls(List.of(poll));
+        user.setTopics(List.of(topic));
         userDataRepository.save(user);
 
-        pollRepository.save(poll);
+        topicRepository.save(topic);
 
-        String response = doGetRequest(poll.getId());
+        String response = doGetRequest(topic.getId());
         System.out.println(response);
 
-        Poll returnedPoll = objectMapper.readValue(response, Poll.class);
-        System.out.println("The poll is: "+ returnedPoll.getName());
+        Topic returnedTopic = objectMapper.readValue(response, Topic.class);
+        System.out.println("The poll is: "+ returnedTopic.getName());
 
-        assertEquals(poll.getName(),returnedPoll.getName());
+        assertEquals(topic.getName(), returnedTopic.getName());
     }
 }

@@ -5,37 +5,28 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-/**
- * Json references:
- * User->Poll,
- * Instance->Poll
- * And:
- * Poll->VoteOptions
- * */
 @Getter
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Poll {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     @Setter
-    private String name;
-
-    @Setter
     @ManyToOne
-    @JsonBackReference(value = "user-poll")
-    private UserData owner;
+    private Topic topic;
 
     @Setter
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
-    @JsonIdentityReference(alwaysAsId = true)
-    private List<Instance> instances;
+    @Column(unique = true)
+    private String roomCode;
 
     @Setter
-    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "poll-voteOptions")
-    private List<VoteOption> voteOptions;
+    private LocalDateTime startDate;
+
+    @Setter
+    private LocalDateTime endDate;
 }

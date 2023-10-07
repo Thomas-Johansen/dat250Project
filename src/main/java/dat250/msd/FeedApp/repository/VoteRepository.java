@@ -1,6 +1,6 @@
 package dat250.msd.FeedApp.repository;
 
-import dat250.msd.FeedApp.model.Instance;
+import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.model.VoteOption;
@@ -13,21 +13,21 @@ import java.util.List;
 public interface VoteRepository extends JpaRepository<Vote,Long> {
 
     /**
-     * Count the total number of votes on a poll instance
-     * @param instance poll instance to count votes from
+     * Count the total number of votes on a topic poll
+     * @param poll topic poll to count votes from
      * @return totalVotes
      * */
-    int countByInstance(Instance instance);
+    int countByPoll(Poll poll);
 
     /**
-     * Count the number of votes for a poll instance that matches the given voteOption
-     * @param instance poll instance to count votes from
+     * Count the number of votes for a topic poll that matches the given voteOption
+     * @param poll topic poll to count votes from
      * @param voteOption vote option to count votes from
      * @return totalVotes
      * */
-    int countByInstanceAndVoteOption(Instance instance, VoteOption voteOption);
+    int countByPollAndVoteOption(Poll poll, VoteOption voteOption);
 
-    boolean existsByInstanceAndVoter(Instance instance, UserData voter);
+    boolean existsByPollAndVoter(Poll poll, UserData voter);
 
     /**
      * Get every vote a user has made
@@ -36,5 +36,5 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
      * */
     List<Vote> getVotesByVoter(UserData voter);
 
-    List<Vote> getVotesByInstance(Instance instance);
+    List<Vote> getVotesByPoll(Poll poll);
 }

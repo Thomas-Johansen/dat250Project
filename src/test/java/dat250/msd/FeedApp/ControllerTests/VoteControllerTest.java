@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.catalina.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,29 +70,29 @@ public class VoteControllerTest {
     @Test
     void createVote() throws JsonProcessingException {
         final Vote vote = new Vote();
+        final Topic topic = new Topic();
         final Poll poll = new Poll();
-        final Instance instance = new Instance();
-        instance.setPoll(poll);
-        instance.setRoomCode("HelloWorld!");
-        instance.setStartDate(LocalDateTime.now());
-        instance.setEndDate(LocalDateTime.now());
+        poll.setTopic(topic);
+        poll.setRoomCode("HelloWorld!");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.now());
 
-        final VoteOption option = new VoteOption(poll,"KameHameHa!");
+        final VoteOption option = new VoteOption(topic,"KameHameHa!");
 
         final UserData user = new UserData();
         user.setUsername("GeirArne");
         user.setEmail("Geir@Arne.no");
         user.setPassword("123");
 
-        vote.setInstance(instance);
+        vote.setPoll(poll);
         vote.setVoter(user);
         vote.setVoteOption(option);
 
-        poll.setInstances(List.of(instance));
-        poll.setVoteOptions(List.of(option));
+        topic.setPolls(List.of(poll));
+        topic.setVoteOptions(List.of(option));
 
         feedAppService.getUserDataRepository().save(user);
-        feedAppService.getPollRepository().save(poll);
+        feedAppService.getTopicRepository().save(topic);
 
         final Vote createdVote = objectMapper.readValue(doPostRequest(vote), Vote.class);
         System.out.println("The vote_id is "+ createdVote.getId());

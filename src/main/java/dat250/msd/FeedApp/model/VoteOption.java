@@ -18,13 +18,13 @@ public class VoteOption {
     @Setter
     @ManyToOne
     @JsonBackReference("poll-voteOptions")
-    private Poll poll;
+    private Topic topic;
 
     @Setter
     private String label;
 
-    public VoteOption(Poll poll, String label) {
-        this.poll = poll;
+    public VoteOption(Topic topic, String label) {
+        this.topic = topic;
         this.label = label;
     }
 

@@ -1,6 +1,6 @@
 package dat250.msd.FeedApp.controller;
 
-import dat250.msd.FeedApp.model.Instance;
+import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.model.VoteOption;
@@ -18,8 +18,8 @@ public class VoteController {
     }
 
     @GetMapping("/vote")
-    public List<Vote> getVotes(@RequestParam(required = true) Instance instance){
-        return feedAppService.getVoteRepository().getVotesByInstance(instance);
+    public List<Vote> getVotes(@RequestParam(required = true) Poll poll){
+        return feedAppService.getVoteRepository().getVotesByPoll(poll);
     }
 
     /**
@@ -30,7 +30,7 @@ public class VoteController {
      *         "username": "Testuser1",
      *         "password": "123"
      *     },
-     *     "instance": {
+     *     "poll": {
      *         "roomCode": "1234"
      *     }
      *     "voteOption":{
@@ -40,23 +40,23 @@ public class VoteController {
      * */
     @PostMapping("/vote")
     public Vote createVote(@RequestBody Vote vote) {
-        Instance instance = feedAppService.getInstanceRepository().getInstanceByRoomCode(vote.getInstance().getRoomCode());
+        Poll poll = feedAppService.getPollRepository().getPollByRoomCode(vote.getPoll().getRoomCode());
         UserData user = feedAppService.getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
         VoteOption voteOption = feedAppService.getVoteOptionRepository().getVoteOptionById(vote.getVoteOption().getId());
 
-        if (instance == null){
-            System.out.println("Vote Creation Failed: Instance not found!");
+        if (poll == null){
+            System.out.println("Vote Creation Failed: Poll not found!");
             return new Vote();
         }
         if (user == null){
             System.out.println("Vote Creation Failed: User not found");
             return new Vote();
         }
-        if (feedAppService.getVoteRepository().existsByInstanceAndVoter(instance,user)){
+        if (feedAppService.getVoteRepository().existsByPollAndVoter(poll,user)){
             System.out.println("Vote Creation Failed: User has already voted!");
             return new Vote();
         }
-        vote.setInstance(instance);
+        vote.setPoll(poll);
         vote.setVoter(user);
         vote.setVoteOption(voteOption);
 
