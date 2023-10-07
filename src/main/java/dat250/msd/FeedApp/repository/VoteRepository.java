@@ -27,6 +27,8 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
      * */
     int countByInstanceAndVoteOption(Instance instance, VoteOption voteOption);
 
+    boolean existsByInstanceAndVoter(Instance instance, UserData voter);
+
     /**
      * Get every vote a user has made
      * @param voter object of user

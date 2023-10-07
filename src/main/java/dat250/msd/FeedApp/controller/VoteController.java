@@ -22,12 +22,45 @@ public class VoteController {
         return feedAppService.getVoteRepository().getVotesByInstance(instance);
     }
 
+    /**
+     * Create a new vote
+     * A vote object should contain at least:
+     * {
+     *     "voter":{
+     *         "username": "Testuser1",
+     *         "password": "123"
+     *     },
+     *     "instance": {
+     *         "roomCode": "1234"
+     *     }
+     *     "voteOption":{
+     *         "id": 1
+     *     }
+     * }
+     * */
     @PostMapping("/vote")
-    public Vote createVote(@RequestBody Vote vote){
-        // If the requirement for a user to at most have one vote per instance
-        // just add a check within this command.
-        feedAppService.getVoteRepository().save(vote);
-        return vote;
+    public Vote createVote(@RequestBody Vote vote) {
+        Instance instance = feedAppService.getInstanceRepository().getInstanceByRoomCode(vote.getInstance().getRoomCode());
+        UserData user = feedAppService.getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
+        VoteOption voteOption = feedAppService.getVoteOptionRepository().getVoteOptionById(vote.getVoteOption().getId());
+
+        if (instance == null){
+            System.out.println("Vote Creation Failed: Instance not found!");
+            return new Vote();
+        }
+        if (user == null){
+            System.out.println("Vote Creation Failed: User not found");
+            return new Vote();
+        }
+        if (feedAppService.getVoteRepository().existsByInstanceAndVoter(instance,user)){
+            System.out.println("Vote Creation Failed: User has already voted!");
+            return new Vote();
+        }
+        vote.setInstance(instance);
+        vote.setVoter(user);
+        vote.setVoteOption(voteOption);
+
+        return feedAppService.getVoteRepository().save(vote);
     }
 
     @PutMapping("/vote")

@@ -4,15 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dat250.msd.FeedApp.model.*;
+import dat250.msd.FeedApp.service.FeedAppService;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.catalina.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -28,6 +31,9 @@ public class VoteControllerTest {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    @Autowired
+    private FeedAppService feedAppService;
 
     private String getBaseURL() {
         return "http://localhost:" + port + "/";
@@ -71,9 +77,9 @@ public class VoteControllerTest {
         instance.setRoomCode("HelloWorld!");
         instance.setStartDate(LocalDateTime.now());
         instance.setEndDate(LocalDateTime.now());
-        final VoteOption option = new VoteOption();
-        option.setPoll(poll);
-        option.setLabel("KameHameHa!");
+
+        final VoteOption option = new VoteOption(poll,"KameHameHa!");
+
         final UserData user = new UserData();
         user.setUsername("GeirArne");
         user.setEmail("Geir@Arne.no");
@@ -82,6 +88,12 @@ public class VoteControllerTest {
         vote.setInstance(instance);
         vote.setVoter(user);
         vote.setVoteOption(option);
+
+        poll.setInstances(List.of(instance));
+        poll.setVoteOptions(List.of(option));
+
+        feedAppService.getUserDataRepository().save(user);
+        feedAppService.getPollRepository().save(poll);
 
         final Vote createdVote = objectMapper.readValue(doPostRequest(vote), Vote.class);
         System.out.println("The vote_id is "+ createdVote.getId());
