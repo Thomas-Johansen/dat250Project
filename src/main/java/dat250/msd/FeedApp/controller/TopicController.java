@@ -1,9 +1,6 @@
 package dat250.msd.FeedApp.controller;
 
-import dat250.msd.FeedApp.model.Poll;
-import dat250.msd.FeedApp.model.Topic;
-import dat250.msd.FeedApp.model.UserData;
-import dat250.msd.FeedApp.model.VoteOption;
+import dat250.msd.FeedApp.model.*;
 import dat250.msd.FeedApp.service.FeedAppService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,18 +68,25 @@ public class TopicController {
      *         "label": "Toasted Toast"
      *     }
      * ]
+     * You need to remove every voteOption reference in Vote as well.
      * */
     @PutMapping("/topic/{id}")
     public ResponseEntity<Topic> updateTopic(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd, @RequestBody List<VoteOption> voteOptions){
         Topic topic = feedAppService.getTopicRepository().getTopicById(id);
-        if (topic == null){
-            return feedAppService.createMessageResponse("Topic not found with id: "+id, HttpStatus.NOT_FOUND);
+        if (topic == null) {
+            return feedAppService.createMessageResponse("Topic not found with id: " + id, HttpStatus.NOT_FOUND);
         }
-        if (!feedAppService.isUserTopicOwner(username, pwd, id)){
-            return feedAppService.createMessageResponse("User is not owner of poll!", HttpStatus.UNAUTHORIZED);
+        if (!feedAppService.isUserTopicOwner(username, pwd, topic)) {
+            return feedAppService.createMessageResponse("User is not the owner of the topic!", HttpStatus.UNAUTHORIZED);
+        }
+        // Remove all old VoteOptions and Votes with that option.
+        for (VoteOption oldVoteOption : topic.getVoteOptions()){
+            oldVoteOption.setTopic(null);
+            feedAppService.getVoteRepository().deleteAll(feedAppService.getVoteRepository().getVotesByVoteOption(oldVoteOption));
         }
 
         // Add new voteOptions
+        topic.getVoteOptions().clear();
         for (VoteOption voteOption : voteOptions){
             voteOption.setTopic(topic);
             topic.getVoteOptions().add(voteOption);
@@ -93,11 +97,11 @@ public class TopicController {
     @DeleteMapping("/topic/{id}")
     public ResponseEntity<Topic> deleteTopic(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd){
         Topic topic = feedAppService.getTopicRepository().getTopicById(id);
-        if (topic == null){
-            return feedAppService.createMessageResponse("Topic not found with id: "+id, HttpStatus.NOT_FOUND);
+        if (topic == null) {
+            return feedAppService.createMessageResponse("Topic not found with id: " + id, HttpStatus.NOT_FOUND);
         }
-        if (!feedAppService.isUserTopicOwner(username, pwd, id)){
-            return feedAppService.createMessageResponse("User is not owner of poll!", HttpStatus.UNAUTHORIZED);
+        if (!feedAppService.isUserTopicOwner(username, pwd, topic)) {
+            return feedAppService.createMessageResponse("User is not the owner of the topic!", HttpStatus.UNAUTHORIZED);
         }
 
         // Remove all votes from every instance
@@ -107,6 +111,4 @@ public class TopicController {
         feedAppService.getTopicRepository().delete(topic);
         return new ResponseEntity<>(topic,HttpStatus.OK);
     }
-
-
 }

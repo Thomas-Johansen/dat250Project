@@ -56,7 +56,7 @@ public class PollController {
         if (topic == null){
             return feedAppService.createMessageResponse("No topic with id: "+topicId, HttpStatus.NOT_FOUND);
         }
-        if (!feedAppService.isUserTopicOwner(username,pwd,topicId)){
+        if (!feedAppService.isUserTopicOwner(username,pwd,topic)){
             return feedAppService.createMessageResponse("User is not owner of Topic.", HttpStatus.UNAUTHORIZED);
         }
 
@@ -83,11 +83,15 @@ public class PollController {
      * }
      * */
     @PutMapping("/poll/{id}")
-    public ResponseEntity<Poll> updatePoll(@PathVariable Long id, @RequestBody Poll updatePoll){
+    public ResponseEntity<Poll> updatePoll(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd, @RequestBody Poll updatePoll){
         Poll poll = feedAppService.getPollRepository().getPollById(id);
         if (poll == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return feedAppService.createMessageResponse("Poll not found with id: " + id, HttpStatus.NOT_FOUND);
         }
+        if (!feedAppService.isUserTopicOwner(username, pwd, poll.getTopic())) {
+            return feedAppService.createMessageResponse("User is not the owner of the topic!", HttpStatus.UNAUTHORIZED);
+        }
+        //poll.setRoomCode(updatePoll.getRoomCode());
         poll.setStartDate(updatePoll.getStartDate());
         poll.setEndDate(updatePoll.getEndDate());
 
@@ -96,11 +100,18 @@ public class PollController {
         return new ResponseEntity<>(feedAppService.getPollRepository().getPollById(id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/poll")
-    public ResponseEntity<Poll> deletePoll(@RequestParam String roomCode){
-        Poll poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
+    /**
+     * Delete a poll using id as path and userAuth as params
+     * poll/X?username=Y&pwd=Z
+     * */
+    @DeleteMapping("/poll/{id}")
+    public ResponseEntity<Poll> deletePoll(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd){
+        Poll poll = feedAppService.getPollRepository().getPollById(id);
         if (poll == null){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return feedAppService.createMessageResponse("Poll not found with id: " + id, HttpStatus.NOT_FOUND);
+        }
+        if (!feedAppService.isUserTopicOwner(username,pwd,poll.getTopic())){
+            return feedAppService.createMessageResponse("User is not the owner of the topic!", HttpStatus.UNAUTHORIZED);
         }
         feedAppService.removeVotes(poll);
         feedAppService.getPollRepository().delete(poll);

@@ -1,9 +1,6 @@
 package dat250.msd.FeedApp.service;
 
-import dat250.msd.FeedApp.model.Poll;
-import dat250.msd.FeedApp.model.UserData;
-import dat250.msd.FeedApp.model.Vote;
-import dat250.msd.FeedApp.model.VoteOption;
+import dat250.msd.FeedApp.model.*;
 import dat250.msd.FeedApp.repository.*;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,10 +96,10 @@ public class FeedAppService {
         return new ResponseEntity<>(voteRepository.save(vote),HttpStatus.OK);
     }
 
-    public boolean isUserTopicOwner(String username, String pwd, Long id) {
+    public boolean isUserTopicOwner(String username, String pwd, Topic topic) {
         // Check that requester is owner of topic
         UserData userData = getUser(username,pwd);
-        UserData owner = getTopicRepository().getTopicById(id).getOwner();
+        UserData owner = topic.getOwner();
         return Objects.equals(userData, owner);
     }
 

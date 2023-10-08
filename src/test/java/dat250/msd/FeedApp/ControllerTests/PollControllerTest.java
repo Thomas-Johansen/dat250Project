@@ -72,6 +72,32 @@ public class PollControllerTest {
         return doRequest(request);
     }
 
+    private String doGetRequest(Long id) {
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "poll/"+id)
+                .get()
+                .build();
+        return doRequest(request);
+    }
+
+    private String doPutRequest(Long id, UserData user, Poll poll) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(poll),JSON);
+
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "poll/"+id+"?username="+user.getUsername()+"&pwd="+user.getPassword())
+                .put(body)
+                .build();
+        return doRequest(request);
+    }
+
+    private String doDeleteRequest(Long id, UserData user) {
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "poll/"+id+"?username="+user.getUsername()+"&pwd="+user.getPassword())
+                .delete()
+                .build();
+        return doRequest(request);
+    }
+
     @Test
     void testCreatePoll() throws JsonProcessingException {
         final Topic topic = new Topic();
@@ -108,6 +134,115 @@ public class PollControllerTest {
 
     @Test
     void testGetPoll() throws JsonProcessingException {
-        // TODO
+        final Topic topic = new Topic();
+        topic.setName("Henry's Popularity Vote");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"Amazing!"),new VoteOption(topic,"Who?"),new VoteOption(topic,"Fell off.")));
+
+        final Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("3333");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
+        final UserData user = new UserData();
+        user.setUsername("Henry");
+        user.setEmail("he1@ea.com");
+        user.setPassword("1111");
+        user.setTopics(List.of(topic));
+
+        topic.setOwner(user);
+        topic.setPolls(List.of(poll));
+
+        userDataRepository.save(user);
+        topicRepository.save(topic);
+
+        String postResponse = doGetRequest(poll.getRoomCode());
+
+        System.out.println(postResponse);
+
+        Poll returnedPoll = objectMapper.readValue(postResponse, Poll.class);
+        assertEquals(topic.getName(), returnedPoll.getTopic().getName());
+        assertEquals(poll.getRoomCode(),returnedPoll.getRoomCode());
+        assertNull(returnedPoll.getTopic().getOwner());
+    }
+
+    @Test
+    void testPutPoll() throws JsonProcessingException {
+        final Topic topic = new Topic();
+        topic.setName("Henry's who's Vote");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"Who!"),new VoteOption(topic,"Who?"),new VoteOption(topic,"Who.")));
+
+        final Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("3456");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
+        final UserData user = new UserData();
+        user.setUsername("Henry The 2nd");
+        user.setEmail("he2@ea.com");
+        user.setPassword("1111");
+        user.setTopics(List.of(topic));
+
+        topic.setOwner(user);
+        topic.setPolls(List.of(poll));
+
+        userDataRepository.save(user);
+        topicRepository.save(topic);
+
+        Poll updatePoll = new Poll();
+        updatePoll.setRoomCode("1881");
+        updatePoll.setStartDate(LocalDateTime.MIN);
+        updatePoll.setEndDate(LocalDateTime.MIN);
+
+        String postResponse = doPutRequest(poll.getId(),user,updatePoll);
+        System.out.println(postResponse);
+
+        Poll returnedPoll = objectMapper.readValue(postResponse, Poll.class);
+        assertEquals(topic.getName(), returnedPoll.getTopic().getName());
+        assertEquals(poll.getRoomCode(),returnedPoll.getRoomCode());
+        assertNull(returnedPoll.getTopic().getOwner());
+
+        // Check updated values
+        assertEquals(LocalDateTime.MIN,returnedPoll.getStartDate());
+        assertEquals(LocalDateTime.MIN,returnedPoll.getEndDate());
+
+        // RoomCode should remain unchanged
+        assertEquals("3456",returnedPoll.getRoomCode());
+    }
+
+    @Test
+    void testDeletePoll() throws JsonProcessingException {
+        final Topic topic = new Topic();
+        topic.setName("Henry's who's Vote");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"Who!"),new VoteOption(topic,"Who?"),new VoteOption(topic,"Who.")));
+
+        final Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("7890");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
+        final UserData user = new UserData();
+        user.setUsername("Henry The 3nd");
+        user.setEmail("he3@ea.com");
+        user.setPassword("1111");
+        user.setTopics(List.of(topic));
+
+        topic.setOwner(user);
+        topic.setPolls(List.of(poll));
+
+        userDataRepository.save(user);
+        topicRepository.save(topic);
+
+        String postResponse = doDeleteRequest(poll.getId(),user);
+        System.out.println(postResponse);
+
+        Poll returnedPoll = objectMapper.readValue(postResponse, Poll.class);
+        assertEquals(topic.getName(), returnedPoll.getTopic().getName());
+
+        // See if it got removed from DB, should get 404
+        String getResponse = doGetRequest(poll.getId());
+        assertEquals(0,getResponse.length());
     }
 }

@@ -61,13 +61,27 @@ public class TopicControllerTest {
     }
 
     private String doGetRequest(Long id) {
-        return this.doGetRequest(getBaseURL() + "topic"+ "/"+id);
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "topic"+ "/"+id)
+                .get()
+                .build();
+        return doRequest(request);
     }
 
-    private String doGetRequest(String url) {
+    private String doPutRequest(Long id, UserData user, List<VoteOption> newVoteOption) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(newVoteOption),JSON);
+
         Request request = new Request.Builder()
-                .url(url)
-                .get()
+                .url(getBaseURL() + "topic"+ "/"+id+"?username="+user.getUsername()+"&pwd="+user.getPassword())
+                .put(body)
+                .build();
+        return doRequest(request);
+    }
+
+    private String doDeleteRequest(Long id, UserData user) {
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "topic"+ "/"+id+"?username="+user.getUsername()+"&pwd="+user.getPassword())
+                .delete()
                 .build();
         return doRequest(request);
     }
@@ -118,5 +132,66 @@ public class TopicControllerTest {
         System.out.println("The topic is: "+ returnedTopic.getName());
 
         assertEquals(topic.getName(), returnedTopic.getName());
+    }
+
+    @Test
+    void testPutTopic() throws JsonProcessingException {
+        final UserData user = new UserData();
+        user.setUsername("Hans");
+        user.setPassword("5555");
+        user.setEmail("Han@gmr.com");
+
+        Topic topic = new Topic();
+        topic.setName("Indecisive Topic");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"L1"),new VoteOption(topic,"L2")));
+        topic.setOwner(user);
+
+        user.setTopics(List.of(topic));
+
+        userDataRepository.save(user);
+        topicRepository.saveAndFlush(topic);
+
+        VoteOption newVoteOption = new VoteOption();
+        newVoteOption.setLabel("L3");
+
+        String response = doPutRequest(topic.getId(),user,List.of(newVoteOption));
+        System.out.println(response);
+
+        Topic returnedTopic = objectMapper.readValue(response, Topic.class);
+        System.out.println("The topic is: "+ returnedTopic.getName());
+
+        assertEquals(topic.getName(), returnedTopic.getName());
+        assertEquals(1,returnedTopic.getVoteOptions().size());
+    }
+
+    @Test
+    void testDeleteTopic() throws JsonProcessingException {
+        final UserData user = new UserData();
+        user.setUsername("Mac");
+        user.setPassword("HEYO");
+        user.setEmail("mac@gmail.com");
+
+        Topic topic = new Topic();
+        topic.setName("YES");
+        topic.setVoteOptions(List.of(new VoteOption(topic,"YES!"),new VoteOption(topic,"Yes.")));
+        topic.setOwner(user);
+
+        user.setTopics(List.of(topic));
+
+        userDataRepository.save(user);
+        topicRepository.saveAndFlush(topic);
+
+        String response = doDeleteRequest(topic.getId(),user);
+        System.out.println(response);
+
+        Topic returnedTopic = objectMapper.readValue(response, Topic.class);
+        System.out.println("The topic is: "+ returnedTopic.getName());
+
+        assertEquals(topic.getName(), returnedTopic.getName());
+        assertEquals(2,returnedTopic.getVoteOptions().size());
+
+        // See if it got removed from DB, should get 404
+        String getResponse = doGetRequest(topic.getId());
+        assertEquals(0,getResponse.length());
     }
 }
