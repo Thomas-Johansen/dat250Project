@@ -55,6 +55,18 @@ public class FeedAppService {
         return user;
     }
 
+    public ResponseEntity<VoteOption> createVoteOption(Topic topic, String label) {
+        if (topic == null){
+            return createMessageResponse("VoteOption Creation Failed: No topic provided!", HttpStatus.NOT_FOUND);
+        }
+        if (label == null){
+            return createMessageResponse("VoteOption Creation Failed: No label provided!", HttpStatus.NOT_FOUND);
+        }
+        VoteOption option = new VoteOption(topic, label);
+        return new ResponseEntity<>(voteOptionRepository.save(option),HttpStatus.OK);
+    }
+
+
     public void removeVotes(Poll poll) {
         //Remove votes from poll
         List<Vote> votes = voteRepository.getVotesByPoll(poll);

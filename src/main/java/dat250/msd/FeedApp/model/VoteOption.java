@@ -17,7 +17,7 @@ public class VoteOption {
 
     @Setter
     @ManyToOne
-    @JsonBackReference("poll-voteOptions")
+    @JsonBackReference("topic-voteOptions")
     private Topic topic;
 
     @Setter
