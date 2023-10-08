@@ -36,6 +36,6 @@ public class Topic {
 
     @Setter
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "poll-voteOptions")
+    @JsonManagedReference(value = "topic-voteOptions")
     private List<VoteOption> voteOptions;
 }
