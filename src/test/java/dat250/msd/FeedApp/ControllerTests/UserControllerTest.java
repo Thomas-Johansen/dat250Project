@@ -39,24 +39,16 @@ public class UserControllerTest {
     }
     private String doRequest(Request request) {
         try (Response response = client.newCall(request).execute()) {
+            System.out.println(response.code());
+            System.out.println(response.headers());
             return Objects.requireNonNull(response.body()).string();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Gets the todo with the given id.
-     */
     private String doGetRequest(String username, String pwd) {
         return this.doGetRequest(getBaseURL() + "user?username=" + username +"&pwd="+pwd);
-    }
-
-    /**
-     * Gets all todos.
-     */
-    private String doGetRequest() {
-        return this.doGetRequest(getBaseURL() + "user");
     }
 
     private String doGetRequest(String url) {

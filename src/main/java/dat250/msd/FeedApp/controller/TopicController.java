@@ -5,6 +5,8 @@ import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.VoteOption;
 import dat250.msd.FeedApp.service.FeedAppService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,9 +19,13 @@ public class TopicController {
         this.feedAppService = feedAppService;
     }
 
-    @GetMapping("/topic")
-    public Topic getTopic(@RequestParam Long id){
-        return feedAppService.getTopicRepository().getTopicById(id);
+    @GetMapping("/topic/{id}")
+    public ResponseEntity<Topic> getTopic(@PathVariable Long id){
+        Topic topic = feedAppService.getTopicRepository().getTopicById(id);
+        if (topic == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(topic,HttpStatus.OK);
     }
 
     /**
@@ -42,20 +48,21 @@ public class TopicController {
      * }
      * */
     @PostMapping("/topic")
-    public Topic createTopic(@RequestParam String username, @RequestParam String pwd, @RequestBody Topic topic){
+    public ResponseEntity<Topic> createTopic(@RequestParam String username, @RequestParam String pwd, @RequestBody Topic topic){
+        if (topic.getName() == null || topic.getVoteOptions().isEmpty()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         UserData owner = feedAppService.getUser(username,pwd);
-        if (owner == null || topic.getName() == null){
-            //TODO error
-            return new Topic();
+        if (owner == null){
+            return feedAppService.createMessageResponse("User not found", HttpStatus.NOT_FOUND);
         }
         topic.setOwner(owner);
-
-        return feedAppService.getTopicRepository().save(topic);
+        return new ResponseEntity<>(feedAppService.getTopicRepository().save(topic), HttpStatus.CREATED);
     }
 
     /**
-     * Update the topic voteOptions using the topic id and a json body like:
-     * PUT: topic?id=1
+     * Add new voteOptions to the topic using the topic id+auth and a json body that looks like::
+     * PUT: topic/id?username=mark&pwd=123
      * [
      *     {
      *         "label": "Frozen Toast"
@@ -65,35 +72,41 @@ public class TopicController {
      *     }
      * ]
      * */
-    @PutMapping("/topic")
-    public Topic updateTopic(@RequestParam Long id, @RequestBody List<VoteOption> voteOptions){
-        //TODO require auth
+    @PutMapping("/topic/{id}")
+    public ResponseEntity<Topic> updateTopic(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd, @RequestBody List<VoteOption> voteOptions){
         Topic topic = feedAppService.getTopicRepository().getTopicById(id);
+        if (topic == null){
+            return feedAppService.createMessageResponse("Topic not found with id: "+id, HttpStatus.NOT_FOUND);
+        }
+        if (!feedAppService.isUserTopicOwner(username, pwd, id)){
+            return feedAppService.createMessageResponse("User is not owner of poll!", HttpStatus.UNAUTHORIZED);
+        }
 
+        // Add new voteOptions
         for (VoteOption voteOption : voteOptions){
             voteOption.setTopic(topic);
             topic.getVoteOptions().add(voteOption);
         }
-        feedAppService.getTopicRepository().save(topic);
-
-        return feedAppService.getTopicRepository().getTopicById(id);
+        return new ResponseEntity<>(feedAppService.getTopicRepository().save(topic), HttpStatus.OK);
     }
 
-    @DeleteMapping("/topic")
-    public Topic deleteTopic(@RequestParam Long id){
-        //TODO require auth
+    @DeleteMapping("/topic/{id}")
+    public ResponseEntity<Topic> deleteTopic(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd){
         Topic topic = feedAppService.getTopicRepository().getTopicById(id);
         if (topic == null){
-            System.out.println("No topic with id: "+id);
-            return new Topic();
+            return feedAppService.createMessageResponse("Topic not found with id: "+id, HttpStatus.NOT_FOUND);
+        }
+        if (!feedAppService.isUserTopicOwner(username, pwd, id)){
+            return feedAppService.createMessageResponse("User is not owner of poll!", HttpStatus.UNAUTHORIZED);
         }
 
         // Remove all votes from every instance
         for (Poll poll : topic.getPolls()){
             feedAppService.removeVotes(poll);
         }
-
         feedAppService.getTopicRepository().delete(topic);
-        return topic;
+        return new ResponseEntity<>(topic,HttpStatus.OK);
     }
+
+
 }

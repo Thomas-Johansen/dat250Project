@@ -5,6 +5,8 @@ import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.model.VoteOption;
 import dat250.msd.FeedApp.service.FeedAppService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,19 @@ public class VoteController {
     }
 
     @GetMapping("/vote")
-    public List<Vote> getVotes(@RequestParam(required = true) Poll poll){
-        return feedAppService.getVoteRepository().getVotesByPoll(poll);
+    public ResponseEntity<List<Vote>> getVotes(@RequestParam String roomCode){
+        Poll poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
+        if (poll == null){
+            return feedAppService.createMessageResponse("No poll with roomCode: "+roomCode, HttpStatus.NOT_FOUND);
+        }
+
+        List<Vote> votes = feedAppService.getVoteRepository().getVotesByPoll(poll);
+        // Remove sensitive userData from output.
+        for (Vote vote : votes){
+            UserData user = vote.getVoter();
+            sanitizeUserData(user);
+        }
+        return new ResponseEntity<>(votes,HttpStatus.OK);
     }
 
     /**
@@ -27,46 +40,40 @@ public class VoteController {
      * A vote object should contain at least:
      * {
      *     "voter":{
-     *         "username": "Testuser1",
+     *         "username": "user1",
      *         "password": "123"
      *     },
      *     "poll": {
      *         "roomCode": "1234"
      *     }
      *     "voteOption":{
-     *         "id": 1
+     *         "id": 1      |OR|    "label": "Toast"
      *     }
      * }
      * */
     @PostMapping("/vote")
-    public Vote createVote(@RequestBody Vote vote) {
-        Poll poll = feedAppService.getPollRepository().getPollByRoomCode(vote.getPoll().getRoomCode());
-        UserData user = feedAppService.getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
-        VoteOption voteOption = feedAppService.getVoteOptionRepository().getVoteOptionById(vote.getVoteOption().getId());
-
-        if (poll == null){
-            System.out.println("Vote Creation Failed: Poll not found!");
-            return new Vote();
+    public ResponseEntity<Vote> createVote(@RequestBody Vote vote) {
+        ResponseEntity<Vote> responseEntityVote = feedAppService.createVote(vote);
+        if (responseEntityVote.getBody() == null){
+            return responseEntityVote;
         }
-        if (user == null){
-            System.out.println("Vote Creation Failed: User not found");
-            return new Vote();
-        }
-        if (feedAppService.getVoteRepository().existsByPollAndVoter(poll,user)){
-            System.out.println("Vote Creation Failed: User has already voted!");
-            return new Vote();
-        }
-        vote.setPoll(poll);
-        vote.setVoter(user);
-        vote.setVoteOption(voteOption);
-
-        return feedAppService.getVoteRepository().save(vote);
+        sanitizeUserData(responseEntityVote.getBody().getVoter());
+        return responseEntityVote;
     }
 
     @PutMapping("/vote")
-    public Vote updateVote(@RequestBody Vote vote, @RequestBody VoteOption option){
+    public ResponseEntity<Vote> updateVote(@RequestBody Vote vote, @RequestBody VoteOption option){
         vote.setVoteOption(option);
         feedAppService.getVoteRepository().save(vote);
-        return vote;
+        return new ResponseEntity<>(vote,HttpStatus.OK);
+    }
+
+    /**
+     * Remove sensitive information from userData before sending.
+     * */
+    private void sanitizeUserData(UserData user){
+        user.setPassword(null);
+        user.setEmail(null);
+        user.setTopics(null);
     }
 }

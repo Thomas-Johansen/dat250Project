@@ -1,6 +1,7 @@
 package dat250.msd.FeedApp.ControllerTests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dat250.msd.FeedApp.model.*;
@@ -38,7 +39,8 @@ public class VoteControllerTest {
         return "http://localhost:" + port + "/";
     }
     private String doPostRequest(Vote vote) throws JsonProcessingException {
-        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(vote), JSON);
+        String req = objectMapper.writeValueAsString(vote);
+        RequestBody body = RequestBody.create(req, JSON);
         Request request = new Request.Builder()
                 .url(getBaseURL() + "vote")
                 .post(body).build();
@@ -46,22 +48,17 @@ public class VoteControllerTest {
     }
     private String doRequest(Request request) {
         try (Response response = client.newCall(request).execute()) {
+            System.out.println(response.code());
+            System.out.println(response.headers());
             return Objects.requireNonNull(response.body()).string();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    private String doGetRequest(Long id) {
-        return this.doGetRequest(getBaseURL() + "vote?id=" + id);
-    }
 
-    private String doGetRequest() {
-        return this.doGetRequest(getBaseURL() + "vote");
-    }
-
-    private String doGetRequest(String url) {
+    private String doGetRequest(String roomCode) {
         Request request = new Request.Builder()
-                .url(url)
+                .url(getBaseURL() + "vote?roomCode=" + roomCode)
                 .get()
                 .build();
         return doRequest(request);
@@ -75,7 +72,7 @@ public class VoteControllerTest {
         poll.setTopic(topic);
         poll.setRoomCode("HelloWorld!");
         poll.setStartDate(LocalDateTime.now());
-        poll.setEndDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
 
         final VoteOption option = new VoteOption(topic,"KameHameHa!");
 
@@ -97,8 +94,49 @@ public class VoteControllerTest {
         final Vote createdVote = objectMapper.readValue(doPostRequest(vote), Vote.class);
         System.out.println("The vote_id is "+ createdVote.getId());
 
-        assertEquals(createdVote.getVoteOption().getLabel(), "KameHameHa!");
+        assertEquals("KameHameHa!",createdVote.getVoteOption().getLabel());
         assertNotNull(createdVote);
+    }
+
+    @Test
+    void getVote() throws JsonProcessingException {
+        final Topic topic = new Topic();
+        final Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("epic");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
+        final UserData user = new UserData();
+        user.setUsername("Mr.Get Votes");
+        user.setEmail("t@bt.eu");
+        user.setPassword("321");
+
+        topic.setPolls(List.of(poll));
+        topic.setVoteOptions(List.of(new VoteOption(topic,"YES YES YES"), new VoteOption(topic, "NO NO NO")));
+
+        feedAppService.getUserDataRepository().save(user);
+        feedAppService.getTopicRepository().save(topic);
+
+        // Check that there are no votes
+        String res = doGetRequest(poll.getRoomCode());
+        List<Vote> returnedVotes = objectMapper.readValue(res, new TypeReference<>(){});
+        assertEquals(returnedVotes.size(),0);
+
+        // Add a new Vote
+        final Vote vote = new Vote();
+        vote.setPoll(poll);
+        vote.setVoter(user);
+        vote.setVoteOption(topic.getVoteOptions().get(0));
+        feedAppService.getVoteRepository().save(vote);
+
+        // Test newly created Vote
+        String response = doGetRequest(poll.getRoomCode());
+        System.out.println(response);
+        returnedVotes = objectMapper.readValue(response, new TypeReference<>() {});
+        assertEquals(1, returnedVotes.size());
+        assertEquals("YES YES YES", returnedVotes.get(0).getVoteOption().getLabel());
+        assertNull(returnedVotes.get(0).getVoter().getPassword());
     }
 }
 

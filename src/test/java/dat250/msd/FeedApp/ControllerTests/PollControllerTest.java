@@ -3,6 +3,7 @@ package dat250.msd.FeedApp.ControllerTests;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.VoteOption;
@@ -18,14 +19,16 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TopicControllerTest {
+public class PollControllerTest {
     @Autowired
     private UserDataRepository userDataRepository;
 
@@ -41,13 +44,14 @@ public class TopicControllerTest {
     private String getBaseURL() {
         return "http://localhost:" + port + "/";
     }
-    private String doPostRequest(UserData userData, Topic topic) throws JsonProcessingException {
-        //RequestBody body = RequestBody.create(gson.toJson(topic), JSON);
-        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(topic),JSON);
+    private String doPostRequest(Long topicId, UserData userData, Poll poll) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(poll),JSON);
 
         Request request = new Request.Builder()
-                .url(getBaseURL() + "topic?username="+userData.getUsername()+"&pwd="+userData.getPassword())
+                .url(getBaseURL() + "poll/"+topicId+"?username="+userData.getUsername()+"&pwd="+userData.getPassword())
                 .post(body).build();
+
+        System.out.println(request.url());
         return doRequest(request);
     }
     private String doRequest(Request request) {
@@ -60,63 +64,50 @@ public class TopicControllerTest {
         }
     }
 
-    private String doGetRequest(Long id) {
-        return this.doGetRequest(getBaseURL() + "topic"+ "/"+id);
-    }
-
-    private String doGetRequest(String url) {
+    private String doGetRequest(String roomCode) {
         Request request = new Request.Builder()
-                .url(url)
+                .url(getBaseURL() + "poll?roomCode="+roomCode)
                 .get()
                 .build();
         return doRequest(request);
     }
 
     @Test
-    void testCreateTopic() throws JsonProcessingException {
+    void testCreatePoll() throws JsonProcessingException {
+        final Topic topic = new Topic();
+        topic.setName("Good or Bad?");
+
+        final Poll poll = new Poll();
+        //poll.setTopic(topic);
+        poll.setRoomCode("2902");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
         final UserData user = new UserData();
-        user.setUsername("Ben");
-        user.setPassword("12321");
-        user.setEmail("test@gmail.com");
-        userDataRepository.save(user);
+        user.setUsername("Peter");
+        user.setEmail("outlook@coldmail.com");
+        user.setPassword("121");
+        user.setTopics(List.of(topic));
 
-        Topic topic = new Topic();
-        topic.setName("Ben's Amazing Topic");
-        topic.setVoteOptions(List.of(new VoteOption(topic,"Cool"),new VoteOption(topic,"Lame")));
-
-        String postResponse = doPostRequest(user, topic);
-        System.out.println(postResponse);
-
-        Topic returnedTopic = objectMapper.readValue(postResponse, Topic.class);
-
-        System.out.println("The topic name is "+ returnedTopic.getName());
-        //assertNotNull(topic.getName());
-        assertEquals("Cool", returnedTopic.getVoteOptions().get(0).getLabel());
-    }
-
-    @Test
-    void testGetTopic() throws JsonProcessingException {
-        final UserData user = new UserData();
-        user.setUsername("Jim");
-        user.setPassword("1337");
-        user.setEmail("jimsi@mailinator.com");
-
-        Topic topic = new Topic();
-        topic.setName("Jim's Not So Amazing Topic");
-        topic.setVoteOptions(List.of(new VoteOption(topic,"1"),new VoteOption(topic,"2")));
         topic.setOwner(user);
 
-        user.setTopics(List.of(topic));
+        //topic.setPolls(List.of(poll));
+        topic.setVoteOptions(List.of(new VoteOption(topic,"Good"), new VoteOption(topic, "Bad")));
 
         userDataRepository.save(user);
         topicRepository.save(topic);
 
-        String response = doGetRequest(topic.getId());
-        System.out.println(response);
+        String postResponse = doPostRequest(topic.getId(),user, poll);
+        System.out.println(postResponse);
 
-        Topic returnedTopic = objectMapper.readValue(response, Topic.class);
-        System.out.println("The topic is: "+ returnedTopic.getName());
+        Poll returnedPoll = objectMapper.readValue(postResponse, Poll.class);
+        assertEquals("Good or Bad?", returnedPoll.getTopic().getName());
+        assertEquals("2902",returnedPoll.getRoomCode());
+        assertNull(returnedPoll.getTopic().getOwner());
+    }
 
-        assertEquals(topic.getName(), returnedTopic.getName());
+    @Test
+    void testGetPoll() throws JsonProcessingException {
+        // TODO
     }
 }

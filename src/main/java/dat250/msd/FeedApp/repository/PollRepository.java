@@ -14,7 +14,7 @@ public interface PollRepository extends JpaRepository<Poll, Long> {
 
     /**
      * Get poll using id
-     * The build in getReferenceById() does only a lazy fetch (only reference)
+     * The built-in getReferenceById() only does a lazy fetch of the object.
      * */
     Poll getPollById(Long instanceId);
 }
