@@ -37,11 +37,11 @@ public class FeedAppApplication {
         //TODO make constructor / create service creation method
         Topic topic = new Topic();
         topic.setOwner(user);
-        topic.setName("TestPoll");
+        topic.setName("Test Topic 1");
 
         Topic topic2 = new Topic();
         topic2.setOwner(user);
-        topic2.setName("TestPoll2");
+        topic2.setName("Test Topic 2");
 
         Poll poll = new Poll();
         poll.setRoomCode("1234");
@@ -55,17 +55,18 @@ public class FeedAppApplication {
         poll2.setStartDate(LocalDateTime.now());
         poll2.setEndDate(LocalDateTime.now());
 
-        VoteOption voteOption = new VoteOption(topic,"Toast");
+        VoteOption voteOption1 = new VoteOption(topic,"Yes");
+        VoteOption voteOption2 = new VoteOption(topic,"No");
 
         Vote vote = new Vote();
         vote.setPoll(poll);
-        vote.setVoteOption(voteOption);
+        vote.setVoteOption(voteOption1);
         vote.setVoter(user);
 
         user.setTopics(List.of(topic));
 
         topic.setPolls(List.of(poll,poll2));
-        topic.setVoteOptions(List.of(voteOption));
+        topic.setVoteOptions(List.of(voteOption1,voteOption2));
 
         // save users
         userRepo.save(user);

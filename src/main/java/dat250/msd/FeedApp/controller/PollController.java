@@ -22,7 +22,7 @@ public class PollController {
     public ResponseEntity<Poll> getPollWithRoomCode(@RequestParam String roomCode){
         Poll poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
         if (poll == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return feedAppService.createMessageResponse("No poll with roomCode: "+roomCode,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(poll,HttpStatus.OK);
     }
@@ -34,7 +34,7 @@ public class PollController {
     public ResponseEntity<Poll> getPollWithId(@PathVariable Long id){
         Poll poll = feedAppService.getPollRepository().getPollById(id);
         if (poll == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return feedAppService.createMessageResponse("No poll with id: "+id,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(poll,HttpStatus.OK);
     }
@@ -102,7 +102,7 @@ public class PollController {
 
     /**
      * Delete a poll using id as path and userAuth as params
-     * poll/X?username=Y&pwd=Z
+     * poll/{id}?username={x}&pwd={yz}
      * */
     @DeleteMapping("/poll/{id}")
     public ResponseEntity<Poll> deletePoll(@PathVariable Long id, @RequestParam String username, @RequestParam String pwd){
