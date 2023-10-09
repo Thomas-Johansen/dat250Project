@@ -68,7 +68,7 @@ public class VoteControllerTest {
         RequestBody body = RequestBody.create(objectMapper.writeValueAsString(vote),JSON);
 
         Request request = new Request.Builder()
-                .url(getBaseURL() + "vote?id="+option)
+                .url(getBaseURL() + "vote/"+option.getId())
                 .put(body)
                 .build();
         return doRequest(request);
@@ -190,7 +190,7 @@ public class VoteControllerTest {
         assertEquals("YES YES YES", returnedVotes.get(0).getVoteOption().getLabel());
         Vote updatedVote = objectMapper.readValue(doPutRequest(returnedVotes.get(0), option2), new TypeReference<>() {
         });
-        assertEquals("YES YES YES", updatedVote.getVoteOption().getLabel());
+        assertEquals("NO NO NO", updatedVote.getVoteOption().getLabel());
         assertNull(updatedVote.getVoter().getPassword());
     }
 }
