@@ -62,8 +62,8 @@ public class VoteController {
     }
 
     @PutMapping("/vote")
-    public ResponseEntity<Vote> updateVote(@RequestBody Vote vote, @RequestBody VoteOption option){
-        vote.setVoteOption(option);
+    public ResponseEntity<Vote> updateVote(@RequestBody Vote vote, @PathVariable Long id){
+        vote.setVoteOption(feedAppService.getVoteOptionRepository().getVoteOptionById(id));
         feedAppService.getVoteRepository().save(vote);
         return new ResponseEntity<>(vote,HttpStatus.OK);
     }

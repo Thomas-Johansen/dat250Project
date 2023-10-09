@@ -64,6 +64,16 @@ public class VoteControllerTest {
         return doRequest(request);
     }
 
+    private String doPutRequest(Vote vote, VoteOption option) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(vote),JSON);
+
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "vote?id="+option)
+                .put(body)
+                .build();
+        return doRequest(request);
+    }
+
     @Test
     void createVote() throws JsonProcessingException {
         final Vote vote = new Vote();
@@ -137,6 +147,51 @@ public class VoteControllerTest {
         assertEquals(1, returnedVotes.size());
         assertEquals("YES YES YES", returnedVotes.get(0).getVoteOption().getLabel());
         assertNull(returnedVotes.get(0).getVoter().getPassword());
+    }
+    @Test
+    void updateVote() throws JsonProcessingException {
+        final Topic topic = new Topic();
+        final Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("cool");
+        poll.setStartDate(LocalDateTime.now());
+        poll.setEndDate(LocalDateTime.MAX);
+
+        final UserData user = new UserData();
+        user.setUsername("Mr.Put Votes");
+        user.setEmail("t@et.eu");
+        user.setPassword("123");
+
+        topic.setPolls(List.of(poll));
+        VoteOption option1 = new VoteOption(topic,"YES YES YES");
+        VoteOption option2 = new VoteOption(topic, "NO NO NO");
+        topic.setVoteOptions(List.of(option1, option2));
+
+        feedAppService.getUserDataRepository().save(user);
+        feedAppService.getTopicRepository().save(topic);
+
+        // Check that there are no votes
+        String res = doGetRequest(poll.getRoomCode());
+        List<Vote> returnedVotes = objectMapper.readValue(res, new TypeReference<>(){});
+        assertEquals(returnedVotes.size(),0);
+
+        // Add a new Vote
+        final Vote vote = new Vote();
+        vote.setPoll(poll);
+        vote.setVoter(user);
+        vote.setVoteOption(topic.getVoteOptions().get(0));
+        feedAppService.getVoteRepository().save(vote);
+
+        // Test newly created Vote
+        String response = doGetRequest(poll.getRoomCode());
+        System.out.println(response);
+        returnedVotes = objectMapper.readValue(response, new TypeReference<>() {});
+        assertEquals(1, returnedVotes.size());
+        assertEquals("YES YES YES", returnedVotes.get(0).getVoteOption().getLabel());
+        Vote updatedVote = objectMapper.readValue(doPutRequest(returnedVotes.get(0), option2), new TypeReference<>() {
+        });
+        assertEquals("YES YES YES", updatedVote.getVoteOption().getLabel());
+        assertNull(updatedVote.getVoter().getPassword());
     }
 }
 
