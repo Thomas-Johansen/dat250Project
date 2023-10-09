@@ -17,28 +17,29 @@ public class VoteOptionController {
         this.feedAppService = feedAppService;
     }
 
-    @GetMapping("/vote-options")
-    public ResponseEntity<List<VoteOption>> getVoteOptions(@RequestBody Topic topic) {
-        List<VoteOption> options = feedAppService.getVoteOptionRepository().getVoteOptionsByTopic(topic);
+    @GetMapping("/vote-option/{id}")
+    public ResponseEntity<List<VoteOption>> getVoteOptions(@PathVariable Long id) {
+        Topic topic = feedAppService.getTopicRepository().getTopicById(id);
+        List<VoteOption> options = topic.getVoteOptions();
 
         return new ResponseEntity<>(options,HttpStatus.OK);
     }
 
-    @PostMapping("/vote-options")
+    @PostMapping("/vote-option")
     public ResponseEntity<VoteOption> createVoteOption(@RequestBody Topic topic, @RequestParam String label) {
         ResponseEntity<VoteOption> responseEntityOption = feedAppService.createVoteOption(topic, label);
 
         return responseEntityOption;
     }
 
-    @PutMapping("/vote-options")
+    @PutMapping("/vote-option")
     public ResponseEntity<VoteOption> updateVoteOption(@RequestBody VoteOption option, @RequestParam String label) {
         option.setLabel(label);
         feedAppService.getVoteOptionRepository().save(option);
         return new ResponseEntity<>(option,HttpStatus.OK);
     }
 
-    @DeleteMapping("/vote-options")
+    @DeleteMapping("/vote-option")
     public ResponseEntity<VoteOption> deleteVoteOption(@RequestBody VoteOption option) {
         feedAppService.getVoteOptionRepository().delete(option);
         return new ResponseEntity<>(option,HttpStatus.OK);

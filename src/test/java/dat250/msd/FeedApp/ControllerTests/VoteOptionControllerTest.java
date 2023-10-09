@@ -1,14 +1,27 @@
 package dat250.msd.FeedApp.ControllerTests;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
+import dat250.msd.FeedApp.model.*;
+import dat250.msd.FeedApp.service.FeedAppService;
+import okhttp3.*;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -19,6 +32,75 @@ public class VoteOptionControllerTest {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    @Autowired
+    private FeedAppService feedAppService;
+
+
+    private String getBaseURL() {
+        return "http://localhost:" + port + "/";
+    }
+    private String doPostRequest(Topic topic, String label) throws JsonProcessingException {
+        String req = objectMapper.writeValueAsString(topic);
+        RequestBody body = RequestBody.create(req, JSON);
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "vote-option")
+                .post(body).build();
+        return doRequest(request);
+    }
+    private String doRequest(Request request) {
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println(response.code());
+            System.out.println(response.headers());
+            return Objects.requireNonNull(response.body()).string();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String doGetRequest(long id) throws JsonProcessingException{
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "vote-option/" + id)
+                .get().build();
+        return doRequest(request);
+    }
+
+    private String doPutRequest(Vote vote, VoteOption option) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(vote),JSON);
+
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "vote/"+option.getId())
+                .put(body)
+                .build();
+        return doRequest(request);
+    }
+
+
+    @Test
+    void getVoteOptions() throws JsonProcessingException {
+        Topic topic = new Topic();
+        VoteOption option1 = new VoteOption(topic, "Mikal");
+        VoteOption option2 = new VoteOption(topic, "Vegard");
+        List<VoteOption> options = new ArrayList<VoteOption>();
+        options.add(option1);
+        options.add(option2);
+        topic.setVoteOptions(options);
+
+        feedAppService.getTopicRepository().save(topic);
+
+        long topicID = topic.getId();
+
+        String before = objectMapper.writeValueAsString(options);
+
+        String result = doGetRequest(topicID);
+
+        assertEquals(before, result);
+    }
+
+    @Test
+    void putVoteOption() {
+
+    }
 
 
 }
