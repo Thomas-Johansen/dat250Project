@@ -23,8 +23,8 @@ public class UserController
         return feedAppService.getUser(username, pwd);
     }
     @PutMapping("/user")
-    public UserData updateUser(@RequestAttribute UserData user, @RequestAttribute String username,@RequestAttribute String pwd,@RequestAttribute String email){
-        return feedAppService.updatePassword(user.getId(), user.getPassword(), pwd);
+    public UserData updateUser(@RequestBody UserData user,@RequestParam String pwd,@RequestParam String email){
+        return feedAppService.updateMail(feedAppService.updatePassword(user.getId(), user.getPassword(), pwd), email);
     }
 
 }
