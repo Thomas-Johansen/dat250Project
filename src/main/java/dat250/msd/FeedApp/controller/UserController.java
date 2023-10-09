@@ -21,8 +21,11 @@ public class UserController
     }
 
     @PostMapping("/user")
-    public UserData createUser(@RequestBody UserData user){
-        return feedAppService.createUser(user);
+    public ResponseEntity<UserData> createUser(@RequestBody UserData user){
+        if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())){
+            return feedAppService.createMessageResponse("Username taken.",HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(feedAppService.createUser(user),HttpStatus.OK);
     }
 
     @GetMapping("/user")
