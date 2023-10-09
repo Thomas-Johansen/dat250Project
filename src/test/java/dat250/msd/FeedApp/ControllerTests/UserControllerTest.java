@@ -59,6 +59,26 @@ public class UserControllerTest {
         return doRequest(request);
     }
 
+    private String doDeleteRequest(UserData user) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(user), JSON);
+
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "user")
+                .delete(body)
+                .build();
+        return doRequest(request);
+    }
+
+    private String doPutRequest(UserData user, String pwd, String mail) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(user), JSON);
+
+        Request request = new Request.Builder()
+                .url(getBaseURL() + "user?email=" + mail +"&pwd="+pwd)
+                .put(body)
+                .build();
+        return doRequest(request);
+    }
+
     @Test
     void testCreateUser() throws JsonProcessingException {
         final UserData user = new UserData();
@@ -81,5 +101,42 @@ public class UserControllerTest {
         System.out.println("The user_id is "+ returnedUser.getUsername());
 
         assertEquals(createdUser.getUsername(),returnedUser.getUsername());
+    }
+
+    @Test
+    void testDeleteUser() throws JsonProcessingException {
+        final UserData user = new UserData();
+        user.setUsername("Karl Den Store");
+        user.setPassword("glhf");
+        user.setEmail("KarlMarks2@gmail.com");
+
+        final UserData createdUser = objectMapper.readValue(doPostRequest(user), UserData.class);
+
+        final UserData returnedUser = objectMapper.readValue(doGetRequest(createdUser.getUsername(),createdUser.getPassword()), UserData.class);
+        assertNotNull(returnedUser);
+
+        String deletedUser = doDeleteRequest(user);
+        assertEquals(0,deletedUser.length());
+
+        String getEmptyUser = doGetRequest(createdUser.getUsername(),createdUser.getPassword());
+        assertEquals(0,getEmptyUser.length());
+    }
+
+    @Test
+    void testPutUser() throws JsonProcessingException {
+        final UserData user = new UserData();
+        user.setUsername("Karl Den Lille");
+        user.setPassword("glhf");
+        user.setEmail("KarlTiny@gmail.com");
+
+        final UserData createdUser = objectMapper.readValue(doPostRequest(user), UserData.class);
+        assertEquals(user.getEmail(),createdUser.getEmail());
+
+        final UserData putUser = objectMapper.readValue(doPutRequest(user,"123","newMail@hotmail.com"), UserData.class);
+        assertNotNull(putUser);
+
+        final UserData returnedUser = objectMapper.readValue(doGetRequest(putUser.getUsername(),putUser.getPassword()), UserData.class);
+        assertEquals("newMail@hotmail.com",returnedUser.getEmail());
+        assertEquals("123",returnedUser.getPassword());
     }
 }
