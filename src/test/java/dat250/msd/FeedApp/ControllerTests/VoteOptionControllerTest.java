@@ -40,11 +40,10 @@ public class VoteOptionControllerTest {
     private String getBaseURL() {
         return "http://localhost:" + port + "/";
     }
-    private String doPostRequest(Topic topic, String label) throws JsonProcessingException {
-        String req = objectMapper.writeValueAsString(topic);
-        RequestBody body = RequestBody.create(req, JSON);
+    private String doPostRequest(Long id, String label) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(label),JSON);
         Request request = new Request.Builder()
-                .url(getBaseURL() + "vote-option")
+                .url(getBaseURL() + "vote-option/" + id + "?label=" + label)
                 .post(body).build();
         return doRequest(request);
     }
@@ -65,11 +64,11 @@ public class VoteOptionControllerTest {
         return doRequest(request);
     }
 
-    private String doPutRequest(Vote vote, VoteOption option) throws JsonProcessingException {
-        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(vote),JSON);
+    private String doPutRequest(VoteOption option, String label) throws JsonProcessingException {
+        RequestBody body = RequestBody.create(objectMapper.writeValueAsString(option), JSON);
 
         Request request = new Request.Builder()
-                .url(getBaseURL() + "vote/"+option.getId())
+                .url(getBaseURL() + "vote-option?label=" + label)
                 .put(body)
                 .build();
         return doRequest(request);
@@ -79,6 +78,7 @@ public class VoteOptionControllerTest {
     @Test
     void getVoteOptions() throws JsonProcessingException {
         Topic topic = new Topic();
+        topic.setName("GetOptions");
         VoteOption option1 = new VoteOption(topic, "Mikal");
         VoteOption option2 = new VoteOption(topic, "Vegard");
         List<VoteOption> options = new ArrayList<VoteOption>();
@@ -86,21 +86,51 @@ public class VoteOptionControllerTest {
         options.add(option2);
         topic.setVoteOptions(options);
 
+
         feedAppService.getTopicRepository().save(topic);
 
         long topicID = topic.getId();
 
         String before = objectMapper.writeValueAsString(options);
-
         String result = doGetRequest(topicID);
 
         assertEquals(before, result);
     }
 
     @Test
-    void putVoteOption() {
+    void postVoteOption() throws JsonProcessingException {
+        Topic topic = new Topic();
+        topic.setName("PostOptions");
+        VoteOption option1 = new VoteOption(topic, "Mikal");
+        VoteOption option2 = new VoteOption(topic, "Vegard");
+        List<VoteOption> options = new ArrayList<>();
+        options.add(option1);
+        options.add(option2);
+        topic.setVoteOptions(options);
+        feedAppService.getTopicRepository().save(topic);
 
+        String option3 = "Thomas";
+        long topicID = topic.getId();
+
+        doPostRequest(topicID, option3);
+        assertEquals(3, feedAppService.getTopicRepository().getTopicById(topicID).getVoteOptions().size());
     }
 
+    @Test
+    void putVoteOption() throws JsonProcessingException {
+        Topic topic = new Topic();
+        topic.setName("PutOptions");
+        VoteOption option1 = new VoteOption(topic, "Mikal");
+        VoteOption option2 = new VoteOption(topic, "Vegard");
+        List<VoteOption> options = new ArrayList<>();
+        options.add(option1);
+        options.add(option2);
+        topic.setVoteOptions(options);
+        feedAppService.getTopicRepository().save(topic);
 
+        String option3 = "Thomas";
+
+        doPutRequest(option1, option3);
+
+    }
 }

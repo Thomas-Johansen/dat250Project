@@ -25,8 +25,9 @@ public class VoteOptionController {
         return new ResponseEntity<>(options,HttpStatus.OK);
     }
 
-    @PostMapping("/vote-option")
-    public ResponseEntity<VoteOption> createVoteOption(@RequestBody Topic topic, @RequestParam String label) {
+    @PostMapping("/vote-option/{id}")
+    public ResponseEntity<VoteOption> createVoteOption(@PathVariable Long id, @RequestParam String label) {
+        Topic topic = feedAppService.getTopicRepository().getTopicById(id);
         ResponseEntity<VoteOption> responseEntityOption = feedAppService.createVoteOption(topic, label);
 
         return responseEntityOption;
@@ -34,6 +35,7 @@ public class VoteOptionController {
 
     @PutMapping("/vote-option")
     public ResponseEntity<VoteOption> updateVoteOption(@RequestBody VoteOption option, @RequestParam String label) {
+        option = feedAppService.getVoteOptionRepository().getVoteOptionById(option.getId());
         option.setLabel(label);
         feedAppService.getVoteOptionRepository().save(option);
         return new ResponseEntity<>(option,HttpStatus.OK);
