@@ -38,8 +38,7 @@ public class FeedAppService {
     }
     public UserData getUser(String username, String pwd) {
         return userDataRepository.getUserDataByUsernameAndPassword(username, pwd);}
-    public UserData updatePassword(Long user_id, String old_pwd, String new_pwd){
-        UserData user = userDataRepository.getUserDataById(user_id);
+    public UserData updatePassword(UserData user, String old_pwd, String new_pwd){
         //TODO: old_pwd needs to be hashed to match the stored password.
         if(old_pwd.equals(user.getPassword())){
             //TODO: Hash new pwd

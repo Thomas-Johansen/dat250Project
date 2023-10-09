@@ -34,8 +34,12 @@ public class UserController
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
     @PutMapping("/user")
-    public UserData updateUser(@RequestBody UserData user,@RequestParam String pwd,@RequestParam String email){
-        return feedAppService.updateMail(feedAppService.updatePassword(user.getId(), user.getPassword(), pwd), email);
+    public ResponseEntity<UserData> updateUser(@RequestBody UserData reqUser,@RequestParam String pwd,@RequestParam String email){
+        UserData user = feedAppService.getUser(reqUser.getUsername(), reqUser.getPassword());
+        if (user == null){
+            return feedAppService.createMessageResponse("Invalid user credentials",HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(feedAppService.updateMail(feedAppService.updatePassword(user, user.getPassword(), pwd), email),HttpStatus.OK);
     }
 
     @DeleteMapping("/user")
