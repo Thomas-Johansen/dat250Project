@@ -3,7 +3,6 @@ package dat250.msd.FeedApp.controller;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
-import dat250.msd.FeedApp.model.VoteOption;
 import dat250.msd.FeedApp.service.FeedAppService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +60,7 @@ public class VoteController {
         return responseEntityVote;
     }
 
-    @PutMapping("/vote")
+    @PutMapping("/vote/{id}")
     public ResponseEntity<Vote> updateVote(@RequestBody Vote vote, @PathVariable Long id){
         vote.setVoteOption(feedAppService.getVoteOptionRepository().getVoteOptionById(id));
         feedAppService.getVoteRepository().save(vote);
