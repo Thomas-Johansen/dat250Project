@@ -30,7 +30,7 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-	//implementation("org.springframework.security:spring-security-test")
+	implementation("org.springframework.security:spring-security-test")
 	implementation("com.google.code.gson:gson:2.9.0")
 	implementation("com.squareup.okhttp3:okhttp:4.11.0")
 }
