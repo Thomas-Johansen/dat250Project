@@ -74,15 +74,12 @@ public class FeedAppService {
 
     public ResponseEntity<Vote> createVote(Vote vote) {
         Poll poll = getPollRepository().getPollByRoomCode(vote.getPoll().getRoomCode());
-        UserData user = getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
         VoteOption voteOption = getVoteOptionRepository().getVoteOptionById(vote.getVoteOption().getId());
-
         if (poll == null){
             return createMessageResponse("Vote Creation Failed: Poll with matching roomCode not found!", HttpStatus.NOT_FOUND);
         }
-        if (user == null){
-            return createMessageResponse("Vote Creation Failed: User not found", HttpStatus.NOT_FOUND);
-        }
+
+        // If no voteOption id was sent, but voteOption label and Topic voteOptions are present.
         if (voteOption == null){
             // Try to get vote options with label and topic
             if (vote.getVoteOption().getLabel() != null && poll.getTopic() != null){
@@ -91,6 +88,21 @@ public class FeedAppService {
             if (voteOption == null){
                 return createMessageResponse("Vote Creation Failed: voteOption with id: "+vote.getVoteOption().getId()+" not found", HttpStatus.NOT_FOUND);
             }
+        }
+
+        // if poll is public
+        // TODO prevent users from voting multiple times on a public poll
+        if (!poll.isPrivate()){
+            vote.setPoll(poll);
+            vote.setVoteOption(voteOption);
+            vote.setVoter(null);
+            return new ResponseEntity<>(voteRepository.save(vote),HttpStatus.OK);
+        }
+
+        // Private poll auth
+        UserData user = getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
+        if (user == null){
+            return createMessageResponse("Vote Creation Failed: User not found", HttpStatus.NOT_FOUND);
         }
 
         // Check if already voted in poll

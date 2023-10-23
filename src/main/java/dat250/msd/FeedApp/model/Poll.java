@@ -29,4 +29,7 @@ public class Poll {
 
     @Setter
     private LocalDateTime endDate;
+
+    @Setter
+    private boolean isPrivate = false;
 }

@@ -71,8 +71,10 @@ public class VoteController {
      * Remove sensitive information from userData before sending.
      * */
     private void sanitizeUserData(UserData user){
-        user.setPassword(null);
-        user.setEmail(null);
-        user.setTopics(null);
+        if (user != null){
+            user.setPassword(null);
+            user.setEmail(null);
+            user.setTopics(null);
+        }
     }
 }

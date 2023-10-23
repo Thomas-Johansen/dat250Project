@@ -116,6 +116,7 @@ public class VoteControllerTest {
         poll.setRoomCode("epic");
         poll.setStartDate(LocalDateTime.now());
         poll.setEndDate(LocalDateTime.MAX);
+        poll.setPrivate(true);
 
         final UserData user = new UserData();
         user.setUsername("Mr.Get Votes");
