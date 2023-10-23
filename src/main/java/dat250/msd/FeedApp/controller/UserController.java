@@ -11,6 +11,7 @@ import dat250.msd.FeedApp.service.FeedAppService;
 
 import java.util.List;
 
+@CrossOrigin()
 @RestController
 public class UserController
 {
@@ -18,6 +19,12 @@ public class UserController
 
     public UserController(FeedAppService feedAppService) {
         this.feedAppService = feedAppService;
+    }
+
+    //Temp Test funciton
+    @GetMapping("/users")
+    public ResponseEntity<List<UserData>> getUsers(){ //Lists all users, only for admin usage
+        return new ResponseEntity<>(feedAppService.getUsers(),HttpStatus.OK);
     }
 
     @PostMapping("/user")

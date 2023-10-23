@@ -36,6 +36,9 @@ public class FeedAppService {
         userDataRepository.save(user);
         return user;
     }
+    //Test function
+    public List<UserData> getUsers() { //Lists all users, only for admin usage
+        return userDataRepository.findAll();}
     public UserData getUser(String username, String pwd) {
         return userDataRepository.getUserDataByUsernameAndPassword(username, pwd);}
     public UserData updatePassword(UserData user, String old_pwd, String new_pwd){
