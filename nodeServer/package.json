@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "mongodb": "^6.2.0",
+    "mqtt": "^5.1.3"
+  }
+}

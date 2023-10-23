@@ -2,6 +2,7 @@ package dat250.msd.FeedApp.controller;
 
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
+import dat250.msd.FeedApp.service.Analytics;
 import dat250.msd.FeedApp.service.FeedAppService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PollController {
     private final FeedAppService feedAppService;
+    private final Analytics analytics;
 
-    public PollController(FeedAppService feedAppService) {
+    public PollController(Analytics analytics, FeedAppService feedAppService) {
         this.feedAppService = feedAppService;
+        this.analytics = analytics;
     }
 
     /**
@@ -47,7 +50,8 @@ public class PollController {
      * {
      *     "roomCode":"1234",
      *     "startDate":"2020-01-12T12:00:00",
-     *     "endDate":  "2023-12-24T12:00:00"
+     *     "endDate":  "2023-12-24T12:00:00",
+     *     "isPrivate": true,
      * }
      * */
     @PostMapping("/poll/{topicId}")
@@ -71,8 +75,15 @@ public class PollController {
         // When topic is saved polls are cascaded.
         feedAppService.getTopicRepository().save(topic);
 
+        poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
+
+        //Publish new poll to dweet
+        //analytics.startPoll(poll);
+        //TODO trigger when poll timestamp has ended.
+        analytics.endPoll(poll);
+
         // Get the newly created poll
-        return new ResponseEntity<>(feedAppService.getPollRepository().getPollByRoomCode(roomCode),HttpStatus.CREATED);
+        return new ResponseEntity<>(poll,HttpStatus.CREATED);
     }
 
     /**
