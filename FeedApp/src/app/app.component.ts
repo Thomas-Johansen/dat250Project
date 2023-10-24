@@ -9,6 +9,8 @@ import { ApiService } from './api.service';
 export class AppComponent {
   title = 'FeedApp';
   users : any[] = [];
+  user : any;
+  username: any;
   name: any;
   password: any;
   email: any;
@@ -21,6 +23,11 @@ export class AppComponent {
   public refreshUsers(){
     this.feedApp.getUsers().subscribe(data=>{
       this.users = data
+    })
+  }
+  public getUser(username:string, password:string){
+    this.feedApp.getUser(username, password).subscribe(data=>{
+      this.user = data
     })
   }
 

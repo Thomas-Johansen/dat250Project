@@ -13,4 +13,8 @@ export class ApiService {
   getUsers(): Observable<any[]> {
     return this.http.get<any>(`${this.apiURL}/users`)
   }
+
+  getUser(username: string, password: string): Observable<any> {
+    return this.http.get<any>(`${this.apiURL}/user?username=${username}&pwd=${password}`);
+  }
 }

@@ -16,3 +16,24 @@
 </table>
 <button (click)="refreshUsers()">Refresh</button>
 
+<!-- user-info.component.html -->
+<div>
+  <label for="username">Enter Username:</label>
+  <input type="text" id="username" [(ngModel)]="username"> <br>
+  <label for="username">Enter Password:</label>
+  <input type="text" id="password" [(ngModel)]="password"> <br>
+  <button (click)="getUser(username, password)">Get User Info</button>
+</div>
+<br>
+<div *ngIf="user">
+  <h2>Polls:</h2>
+  <table>
+  <tr *ngFor="let topic of user.topics">
+    <td>{{topic.id}}</td>
+    <td>{{topic.name}}</td>
+    <td>{{topic.polls}}</td>
+    <td>{{topic.voteOptions}}</td>
+  </tr>
+  </table>
+</div>
+
