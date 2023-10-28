@@ -21,4 +21,8 @@ public interface UserDataRepository extends JpaRepository<UserData,Long> {
     boolean existsByUsername(String username);
 
     UserData getUserDataById(Long id);
+
+    UserData getUserDataByUsername(String username);
+
+
 }

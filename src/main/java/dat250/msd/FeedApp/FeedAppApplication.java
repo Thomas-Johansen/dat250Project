@@ -3,16 +3,26 @@ package dat250.msd.FeedApp;
 import dat250.msd.FeedApp.model.*;
 import dat250.msd.FeedApp.repository.*;
 import dat250.msd.FeedApp.service.FeedAppService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @SpringBootApplication(scanBasePackages = "dat250.msd.FeedApp")
 public class FeedAppApplication {
+
+    @Autowired
+    final public BCryptPasswordEncoder passwordEncoder;
+
+    public FeedAppApplication(BCryptPasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(FeedAppApplication.class, args);
     }
@@ -27,7 +37,7 @@ public class FeedAppApplication {
         UserData user = new UserData();
         user.setUsername("user1");
         user.setEmail("Test@email.com");
-        user.setPassword("123");
+        user.setPassword(passwordEncoder.encode("123"));
 
         UserData user2 = new UserData();
         user2.setUsername("user2");

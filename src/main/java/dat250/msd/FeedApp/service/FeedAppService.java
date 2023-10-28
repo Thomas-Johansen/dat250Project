@@ -36,11 +36,15 @@ public class FeedAppService {
         userDataRepository.save(user);
         return user;
     }
-    public UserData getUser(String username, String pwd) {
-        return userDataRepository.getUserDataByUsernameAndPassword(username, pwd);}
+    public UserData getUser(String username) {
+        return userDataRepository.getUserDataByUsername(username);}
     public UserData updatePassword(Long user_id, String old_pwd, String new_pwd){
         UserData user = userDataRepository.getUserDataById(user_id);
         return user;}
+
+    public UserData getUserByUsername(String username) {
+        return userDataRepository.getUserDataByUsername(username);
+    }
 
     public UserData updatePassword(UserData user, String old_pwd, String new_pwd){
         //TODO: old_pwd needs to be hashed to match the stored password.
@@ -104,7 +108,7 @@ public class FeedAppService {
         }
 
         // Private poll auth
-        UserData user = getUser(vote.getVoter().getUsername(), vote.getVoter().getPassword());
+        UserData user = getUser(vote.getVoter().getUsername());
         if (user == null){
             return createMessageResponse("Vote Creation Failed: User not found", HttpStatus.NOT_FOUND);
         }
@@ -123,9 +127,10 @@ public class FeedAppService {
         return new ResponseEntity<>(voteRepository.save(vote),HttpStatus.OK);
     }
 
+    //TODO: Use session id instead of username and password.
     public boolean isUserTopicOwner(String username, String pwd, Topic topic) {
         // Check that requester is owner of topic
-        UserData userData = getUser(username,pwd);
+        UserData userData = getUser(username);
         UserData owner = topic.getOwner();
         return Objects.equals(userData, owner);
     }

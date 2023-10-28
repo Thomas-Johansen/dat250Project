@@ -2,6 +2,9 @@ package dat250.msd.FeedApp.controller;
 
 import dat250.msd.FeedApp.model.*;
 import dat250.msd.FeedApp.service.FeedAppService;
+import dat250.msd.FeedApp.session.SessionRegistry;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,11 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class TopicController {
     private final FeedAppService feedAppService;
+    @Autowired
+    private final SessionRegistry sessionRegistry;
 
-    public TopicController(FeedAppService feedAppService) {
+    public TopicController(FeedAppService feedAppService, SessionRegistry sessionRegistry) {
         this.feedAppService = feedAppService;
+        this.sessionRegistry = sessionRegistry;
     }
 
     @GetMapping("/topic/{id}")
@@ -23,6 +30,18 @@ public class TopicController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(topic,HttpStatus.OK);
+    }
+
+    @GetMapping("/topic")
+    public ResponseEntity<List<Topic>> getTopics(@RequestParam String sessionId){
+        String username = sessionRegistry.getUsernameForSession(sessionId);
+        System.out.println("SESSION ID: "+sessionId);
+        UserData user = feedAppService.getUser(username);
+        List<Topic> topics = feedAppService.getTopicRepository().getTopicsByOwner(user);
+        if (topics == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(topics,HttpStatus.OK);
     }
 
     /**
@@ -45,11 +64,12 @@ public class TopicController {
      * }
      * */
     @PostMapping("/topic")
-    public ResponseEntity<Topic> createTopic(@RequestParam String username, @RequestParam String pwd, @RequestBody Topic topic){
+    public ResponseEntity<Topic> createTopic(@RequestParam String sessionId, @RequestBody Topic topic){
         if (topic.getName() == null || topic.getVoteOptions().isEmpty()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        UserData owner = feedAppService.getUser(username,pwd);
+        String username = sessionRegistry.getUsernameForSession(sessionId);
+        UserData owner = feedAppService.getUser(username);
         if (owner == null){
             return feedAppService.createMessageResponse("User not found", HttpStatus.NOT_FOUND);
         }

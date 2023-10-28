@@ -29,8 +29,8 @@ public class UserController
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserData> getUser(@RequestParam String username, @RequestParam String pwd){
-        UserData user = feedAppService.getUser(username, pwd);
+    public ResponseEntity<UserData> getUser(@RequestParam String username){
+        UserData user = feedAppService.getUser(username);
         if (user == null){
             return feedAppService.createMessageResponse("Invalid user credentials",HttpStatus.NOT_FOUND);
         }
@@ -38,7 +38,7 @@ public class UserController
     }
     @PutMapping("/user")
     public ResponseEntity<UserData> updateUser(@RequestBody UserData reqUser,@RequestParam String pwd,@RequestParam String email){
-        UserData user = feedAppService.getUser(reqUser.getUsername(), reqUser.getPassword());
+        UserData user = feedAppService.getUser(reqUser.getUsername());
         if (user == null){
             return feedAppService.createMessageResponse("Invalid user credentials",HttpStatus.NOT_FOUND);
         }
@@ -47,8 +47,8 @@ public class UserController
 
     @DeleteMapping("/user")
     public ResponseEntity<UserData> deleteUser(@RequestBody UserData reqUser){
-        UserData user = feedAppService.getUser(reqUser.getUsername(), reqUser.getPassword());
-        if (user == null){
+        UserData user = feedAppService.getUser(reqUser.getUsername());
+        if (user == null || user.getPassword() != reqUser.getPassword()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
