@@ -14,12 +14,10 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class Analytics {
     private final FeedAppService feedAppService;
-    private final RestTemplate restTemplate;
-
+    private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public Analytics(FeedAppService feedAppService) {
-        this.restTemplate = new RestTemplate();
         this.feedAppService = feedAppService;
     }
 
@@ -28,7 +26,9 @@ public class Analytics {
      * When a poll is started it sends a REST POST request to Dweet.io
      * <a href="https://dweet.io/get/latest/dweet/for/feed-app-polls">Latest dweet</a>
      */
-    public void startPoll(Poll poll) {
+    public void startPoll(Long pollId) {
+        Poll poll = feedAppService.getPollRepository().getPollById(pollId);
+
         createDweet(poll);
     }
 
@@ -36,9 +36,10 @@ public class Analytics {
     /**
      * When a poll is expired it sends a POST request to dweet.io & publishes a message to the MQTT messaging system.
      */
-    public void endPoll(Poll poll) {
-        createDweet(poll);
+    public void endPoll(Long pollId) {
+        Poll poll = feedAppService.getPollRepository().getPollById(pollId);
 
+        createDweet(poll);
         MqttMessage(poll);
     }
 

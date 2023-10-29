@@ -3,7 +3,6 @@ package dat250.msd.FeedApp;
 import dat250.msd.FeedApp.model.*;
 import dat250.msd.FeedApp.repository.*;
 import dat250.msd.FeedApp.service.FeedAppService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,8 +14,6 @@ import java.util.List;
 
 @SpringBootApplication(scanBasePackages = "dat250.msd.FeedApp")
 public class FeedAppApplication {
-
-    @Autowired
     final public BCryptPasswordEncoder passwordEncoder;
 
     public FeedAppApplication(BCryptPasswordEncoder passwordEncoder) {
@@ -42,7 +39,7 @@ public class FeedAppApplication {
         UserData user2 = new UserData();
         user2.setUsername("user2");
         user2.setEmail("Test2@email.no");
-        user2.setPassword("42");
+        user2.setPassword(passwordEncoder.encode("42"));
 
         //TODO make constructor / create service creation method
         Topic topic = new Topic();

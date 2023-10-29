@@ -3,7 +3,10 @@ package dat250.msd.FeedApp.controller;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
+import dat250.msd.FeedApp.model.VoteOption;
 import dat250.msd.FeedApp.service.FeedAppService;
+import dat250.msd.FeedApp.service.UserDataService;
+import dat250.msd.FeedApp.service.VoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +14,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class VoteController {
     private final FeedAppService feedAppService;
+    private final UserDataService userDataService;
+    private final VoteService voteService;
 
-    public VoteController(FeedAppService feedAppService){
+    public VoteController(FeedAppService feedAppService, UserDataService userDataService, VoteService voteService){
         this.feedAppService = feedAppService;
+        this.userDataService = userDataService;
+        this.voteService = voteService;
     }
 
     @GetMapping("/vote")
@@ -38,12 +46,8 @@ public class VoteController {
      * Create a new vote
      * A vote object should contain at least:
      * {
-     *     "voter":{
-     *         "username": "user1",
-     *         "password": "123"
-     *     },
      *     "poll": {
-     *         "roomCode": "1234"
+     *         "id": 1      |OR|    "roomCode": "1234"
      *     }
      *     "voteOption":{
      *         "id": 1      |OR|    "label": "Toast"
@@ -51,18 +55,32 @@ public class VoteController {
      * }
      * */
     @PostMapping("/vote")
-    public ResponseEntity<Vote> createVote(@RequestBody Vote vote) {
-        ResponseEntity<Vote> responseEntityVote = feedAppService.createVote(vote);
-        if (responseEntityVote.getBody() == null){
-            return responseEntityVote;
+    public ResponseEntity<Vote> createVote(@RequestHeader(name = "Authorization", required = false) String sessionId, @RequestBody Vote vote) {
+        if (sessionId == null){
+            return voteService.createVote(vote);
         }
-        sanitizeUserData(responseEntityVote.getBody().getVoter());
-        return responseEntityVote;
+        return voteService.createPrivateVote(sessionId,vote);
     }
 
     @PutMapping("/vote/{id}")
-    public ResponseEntity<Vote> updateVote(@RequestBody Vote vote, @PathVariable Long id){
-        vote.setVoteOption(feedAppService.getVoteOptionRepository().getVoteOptionById(id));
+    public ResponseEntity<Vote> updateVote(@RequestHeader(name = "Authorization") String sessionId, @PathVariable Long id, @RequestBody VoteOption newVoteOption){
+        UserData user = userDataService.getUserWithSessionId(sessionId);
+        if (user == null){
+            return feedAppService.createMessageResponse("Invalid sessionId.",HttpStatus.UNAUTHORIZED);
+        }
+
+        // See if user is owner of the vote
+        Vote vote = feedAppService.getVoteRepository().getVoteByIdAndVoter(id,user);
+        if (vote == null){
+            return feedAppService.createMessageResponse("No vote with id: "+id+" belonging to user: "+user.getUsername(), HttpStatus.NOT_FOUND);
+        }
+
+        // See if given voteOption is a valid option in Topic
+        VoteOption option = feedAppService.getVoteOptionFromTopic(vote.getPoll(),newVoteOption);
+        if (option == null){
+            return feedAppService.createMessageResponse("VoteOption is not a valid option in Topic", HttpStatus.CONFLICT);
+        }
+        vote.setVoteOption(option);
         feedAppService.getVoteRepository().save(vote);
         return new ResponseEntity<>(vote,HttpStatus.OK);
     }

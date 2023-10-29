@@ -3,7 +3,6 @@ package dat250.msd.FeedApp.user;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.service.FeedAppService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class CurrentUserService implements UserDetailsService {
     }
     @Override
     public UserData loadUserByUsername(String username) throws UsernameNotFoundException {
-        final UserData currentUser = feedAppService.getUserByUsername(username);
+        final UserData currentUser = feedAppService.getUserDataRepository().getUserDataByUsername(username);
         if (currentUser == null) {
             throw new UsernameNotFoundException("Failed to find user with username" + username);
         }
