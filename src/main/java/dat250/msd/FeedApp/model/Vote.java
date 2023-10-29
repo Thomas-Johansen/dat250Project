@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,5 +22,6 @@ public class Vote {
 
     @Setter
     @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
     private UserData voter;
 }
