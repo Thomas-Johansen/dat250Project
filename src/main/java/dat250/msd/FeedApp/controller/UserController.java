@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.controller;
 
+import dat250.msd.FeedApp.dto.UserResponseDTO;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+//TODO: Change returns to UserDTO so that no privat information is returned at API call
 public class UserController {
     private final FeedAppService feedAppService;
     private final UserDataService userDataService;
@@ -27,12 +29,15 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<UserData> getUser(@RequestHeader("Authorization") String sessionId) {
+    public ResponseEntity<UserResponseDTO> getUser(@RequestHeader("Authorization") String sessionId) {
         UserData user = userDataService.getUserWithSessionId(sessionId);
         if (user == null) {
             return feedAppService.createMessageResponse("Invalid session credentials", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        UserResponseDTO userResponse = new UserResponseDTO();
+        userResponse.setUsername(user.getUsername());
+        userResponse.setEmail(user.getEmail());
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     @PostMapping("/user")

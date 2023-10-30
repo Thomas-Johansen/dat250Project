@@ -57,6 +57,9 @@ public class AppConfig {
         http.authorizeHttpRequests((auth) -> auth
                 //To enable an url without logging in use the requstMatchers(url).permitAll()
                 .requestMatchers("/api/login").permitAll()
+                .requestMatchers("/api/poll").permitAll()
+                .requestMatchers("/api/vote").permitAll()
+                .requestMatchers("/api/votes").permitAll()
                 .anyRequest().authenticated());
 
         http.addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class);

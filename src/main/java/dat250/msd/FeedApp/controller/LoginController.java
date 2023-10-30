@@ -4,13 +4,11 @@ import dat250.msd.FeedApp.dto.ResponseDTO;
 import dat250.msd.FeedApp.dto.UserDTO;
 import dat250.msd.FeedApp.session.SessionRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -30,5 +28,11 @@ public class LoginController {
         response.setSessionId(sessionId);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity logout(@RequestHeader("Authorization") String sessionId) {
+        sessionRegistry.unregisterSession(sessionId);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

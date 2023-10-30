@@ -25,6 +25,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	annotationProcessor("org.projectlombok:lombok")
@@ -34,6 +35,7 @@ dependencies {
 	implementation("com.google.code.gson:gson:2.9.0")
 	implementation("com.squareup.okhttp3:okhttp:4.11.0")
 	implementation("com.hivemq:hivemq-mqtt-client:1.3.3")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 
 }
 
