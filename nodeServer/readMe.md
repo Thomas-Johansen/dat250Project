@@ -9,4 +9,7 @@ This is a nodejs server that is subscribed to the topic poll and listens for fin
 
 ### Local Setup
 * Create a new MongoDB database called: ``FeedApp`` and a new collection called ``PollResult``. (Should run on localhost:27017)
+
 * Start the HiveMQ broker. (Should run on localhost:1883)
+
+* Start the NodeJs server by first installing the packages with ``npm install`` and then ``npm start`` to run it.

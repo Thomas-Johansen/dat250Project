@@ -1,4 +1,12 @@
 {
+  "name": "mqtt-subscriber",
+  "version": "1.0.0",
+  "description": "Simple nodejs application that is subscribed and listens for MQTT result Polls and saves them to MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "msd",
   "dependencies": {
     "mongodb": "^6.2.0",
     "mqtt": "^5.1.3"

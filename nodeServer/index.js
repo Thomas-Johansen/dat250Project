@@ -2,17 +2,20 @@ const mqtt = require("mqtt");
 const { MongoClient } = require("mongodb");
 
 // MQTT
-const hostname = "localhost";
+const hostname = "0.0.0.0";
 const port = "1883";
 const mqttClient = mqtt.connect(`mqtt://${hostname}:${port}`);
 
 const topic = "poll";
 
 // MongoDb
-const url = "mongodb://localhost:27017";
+const mongoHostname = "0.0.0.0";
+const mongoPort = "27017";
+const url = `mongodb://${mongoHostname}:${mongoPort}`;
 const mongoClient = new MongoClient(url);
 
 mqttClient.on("connect", () => {
+    console.log("Connecting");
     mqttClient.subscribe(topic);
     console.log("Connected and subscribed");
 });
