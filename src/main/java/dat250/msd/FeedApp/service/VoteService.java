@@ -38,7 +38,7 @@ public class VoteService {
     public ResponseEntity<Vote> createVote(Vote vote) {
         Poll poll = pollRepository.getPollById(vote.getPoll().getId());
         if (poll == null){
-            return feedAppService.createMessageResponse("Vote Creation Failed: Poll with matching roomCode not found!", HttpStatus.NOT_FOUND);
+            return feedAppService.createMessageResponse("Vote Creation Failed: Poll with matching id not found!", HttpStatus.NOT_FOUND);
         }
 
         VoteOption selectedVoteOption = vote.getVoteOption();

@@ -41,4 +41,6 @@ public interface VoteRepository extends JpaRepository<Vote,Long> {
     List<Vote> getVotesByVoteOption(VoteOption oldVoteOption);
 
     Vote getVoteByIdAndVoter(Long id, UserData user);
+
+    Vote getVoteByPollAndVoter(Poll poll, UserData user);
 }

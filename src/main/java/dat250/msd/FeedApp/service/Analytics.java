@@ -7,7 +7,11 @@ import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import dat250.msd.FeedApp.dto.PollPublishDTO;
 import dat250.msd.FeedApp.model.Poll;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -79,26 +83,21 @@ public class Analytics {
         String url = "https://dweet.io/dweet/for/";
         String dweetThingName = "feed-app-polls";
 
-        String pollInfo = getPollInfo(poll);
+        // Get poll info as json string
+        String pollInfo = getPollInfoJson(poll);
 
-        String response = restTemplate.getForObject(url + dweetThingName + pollInfo, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(pollInfo, headers);
+        String response = restTemplate.postForObject(url + dweetThingName,requestEntity, String.class);
         System.out.println(response);
-    }
-
-    // Convert poll to get request path params for dweet.io
-    private String getPollInfo(Poll poll) {
-        return "?topicName=" + poll.getTopic().getName() +
-                "&roomCode=" + poll.getRoomCode() +
-                "&startDate=" + poll.getStartDate() +
-                "&endDate=" + poll.getEndDate() +
-                "&isPrivate=" + poll.isPrivate() +
-                "&totalVotes=" + feedAppService.getVoteRepository().countByPoll(poll);
     }
 
     // Convert poll to
     private String getPollInfoJson(Poll poll) {
         try {
-            return objectMapper.writeValueAsString(poll);
+            return objectMapper.writeValueAsString(new PollPublishDTO(feedAppService,poll));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

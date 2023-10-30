@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.controller;
 
+import dat250.msd.FeedApp.dto.VoteCountDTO;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
@@ -10,8 +11,6 @@ import dat250.msd.FeedApp.service.VoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -26,20 +25,26 @@ public class VoteController {
         this.voteService = voteService;
     }
 
-    @GetMapping("/vote")
-    public ResponseEntity<List<Vote>> getVotes(@RequestParam String roomCode){
+    @GetMapping("/votes")
+    public ResponseEntity<VoteCountDTO> getVoteCount(@RequestParam String roomCode){
         Poll poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
         if (poll == null){
             return feedAppService.createMessageResponse("No poll with roomCode: "+roomCode, HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(new VoteCountDTO(feedAppService,poll),HttpStatus.OK);
+    }
 
-        List<Vote> votes = feedAppService.getVoteRepository().getVotesByPoll(poll);
-        // Remove sensitive userData from output.
-        for (Vote vote : votes){
-            UserData user = vote.getVoter();
-            sanitizeUserData(user);
+    @GetMapping("/vote")
+    public ResponseEntity<Vote> getVotes(@RequestHeader(name = "Authorization") String sessionId,@RequestParam String roomCode){
+        Poll poll = feedAppService.getPollRepository().getPollByRoomCode(roomCode);
+        if (poll == null){
+            return feedAppService.createMessageResponse("No poll with roomCode: "+roomCode, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(votes,HttpStatus.OK);
+        UserData user = userDataService.getUserWithSessionId(sessionId);
+        if (user == null){
+            return feedAppService.createMessageResponse("Invalid sessionId.",HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(feedAppService.getVoteRepository().getVoteByPollAndVoter(poll,user),HttpStatus.OK);
     }
 
     /**
@@ -83,16 +88,5 @@ public class VoteController {
         vote.setVoteOption(option);
         feedAppService.getVoteRepository().save(vote);
         return new ResponseEntity<>(vote,HttpStatus.OK);
-    }
-
-    /**
-     * Remove sensitive information from userData before sending.
-     * */
-    private void sanitizeUserData(UserData user){
-        if (user != null){
-            user.setPassword(null);
-            user.setEmail(null);
-            user.setTopics(null);
-        }
     }
 }
