@@ -49,7 +49,7 @@ public class FeedAppService {
             return createMessageResponse("VoteOption Creation Failed: No label provided!", HttpStatus.NOT_FOUND);
         }
         VoteOption option = new VoteOption(topic, label);
-        return new ResponseEntity<>(voteOptionRepository.save(option), HttpStatus.OK);
+        return new ResponseEntity<>(voteOptionRepository.save(option), HttpStatus.CREATED);
     }
 
     /**

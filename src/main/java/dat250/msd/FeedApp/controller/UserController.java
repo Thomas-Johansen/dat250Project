@@ -45,7 +45,7 @@ public class UserController {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(userDataService.createUser(user), HttpStatus.OK);
+        return new ResponseEntity<>(userDataService.createUser(user), HttpStatus.CREATED);
     }
 
     /**

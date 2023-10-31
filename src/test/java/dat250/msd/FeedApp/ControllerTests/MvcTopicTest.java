@@ -1,25 +1,18 @@
 package dat250.msd.FeedApp.ControllerTests;
 
-import static com.jayway.jsonpath.JsonPath.read;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.VoteOption;
-import dat250.msd.FeedApp.repository.PollRepository;
 import dat250.msd.FeedApp.repository.TopicRepository;
 import dat250.msd.FeedApp.repository.UserDataRepository;
 import org.junit.jupiter.api.*;
-
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -28,11 +21,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.jayway.jsonpath.JsonPath.read;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MvcPollControllerTest {
+public class MvcTopicTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,37 +42,32 @@ public class MvcPollControllerTest {
     private TopicRepository topicRepository;
 
     @Autowired
-    private PollRepository pollRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private Topic topic;
-    private Poll poll;
+    private UserData user;
     private String sessionId;
 
     @BeforeAll
     public void setup() throws Exception {
-        System.out.println("Setup");
-
         topic = new Topic();
-        topic.setName("Good or Bad?");
-        topic.setVoteOptions(List.of(new VoteOption(topic,"Good"), new VoteOption(topic, "Bad")));
+        topic.setName("Ben's Amazing Topic?");
+        topic.setVoteOptions(List.of(new VoteOption(topic, "Good"), new VoteOption(topic, "Bad")));
 
-        UserData user = new UserData();
-        user.setUsername("Peter");
-        user.setEmail("outlook@coldmail.com");
-        user.setPassword(passwordEncoder.encode("121"));
+        user = new UserData();
+        user.setUsername("Ben?");
+        user.setEmail("inlook@coldmail.com");
+        user.setPassword(passwordEncoder.encode("123567"));
         user.setTopics(List.of(topic));
 
-        topic.setOwner(user);
-        //topic.setPolls(List.of(poll));
-
-        poll = new Poll();
-        //poll.setTopic(topic);
-        poll.setRoomCode("9999");
+        Poll poll = new Poll();
+        poll.setTopic(topic);
+        poll.setRoomCode("20000");
         poll.setStartDate(LocalDateTime.now());
         poll.setEndDate(LocalDateTime.MAX);
+
+        topic.setOwner(user);
+        topic.setPolls(List.of(poll));
 
         // Save UserData and Topic to DB.
         userDataRepository.save(user);
@@ -82,7 +75,7 @@ public class MvcPollControllerTest {
 
         UserData u = new UserData();
         u.setUsername(user.getUsername());
-        u.setPassword("121");
+        u.setPassword("123567");
 
         MvcResult response = mockMvc.perform(
                 post("/api/login").content(asJsonString(u)).contentType(MediaType.APPLICATION_JSON)
@@ -95,58 +88,52 @@ public class MvcPollControllerTest {
 
     @Test
     @Order(1)
-    public void createPoll() throws Exception {
-        System.out.println(sessionId);
+    public void createTopic() throws Exception {
         mockMvc.perform(
-                    post("/api/poll/" + topic.getId()).header("Authorization",sessionId)
-                            .content(asJsonString(poll))
-                            .contentType(MediaType.APPLICATION_JSON)
+                        post("/api/topic").header("Authorization", sessionId)
+                                .content(asJsonString(topic))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.topic.name").value("Good or Bad?"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.private").value(false));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()));
     }
 
     @Test
     @Order(2)
-    //TODO remove Authorization header should be public
-    public void getPoll() throws Exception{
-        mockMvc.perform(get("/api/poll?roomCode="+poll.getRoomCode()).header("Authorization",sessionId))
+    public void getTopic() throws Exception {
+        mockMvc.perform(get("/api/topic/" + topic.getId()).header("Authorization", sessionId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.topic.name").value("Good or Bad?"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()));
     }
 
     @Test
     @Order(3)
-    public void putPoll() throws Exception{
-        Poll updatePoll = new Poll();
-        updatePoll.setPrivate(true);
+    public void putTopic() throws Exception {
+        List<VoteOption> voteOptions = List.of(new VoteOption(null, "no u"), new VoteOption(null, "heyo"));
         mockMvc.perform(
-                        put("/api/poll/" + topic.getId()).header("Authorization",sessionId)
-                                .content(asJsonString(updatePoll))
+                        put("/api/topic/" + topic.getId()).header("Authorization", sessionId)
+                                .content(asJsonString(voteOptions))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.private").value(true));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.voteOptions[0].label").value("no u"));
     }
 
     @Test
     @Order(4)
-    public void deletePoll() throws Exception{
-        Poll deletePoll = new Poll();
-        deletePoll.setRoomCode("24040");
-        deletePoll.setPrivate(true);
+    public void deleteTopic() throws Exception {
+        Topic deleteTopic = new Topic();
+        deleteTopic.setName("Delete this Topic");
+        deleteTopic.setOwner(user);
 
-        // Set topic will set user to owner as well
-        deletePoll.setTopic(topic);
-
-        pollRepository.save(deletePoll);
+        topicRepository.save(deleteTopic);
 
         mockMvc.perform(
-                        delete("/api/poll/" + deletePoll.getId()).header("Authorization",sessionId)
+                        delete("/api/topic/" + deleteTopic.getId()).header("Authorization", sessionId)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

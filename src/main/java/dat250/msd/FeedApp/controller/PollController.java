@@ -97,6 +97,11 @@ public class PollController {
         if (poll == null) {
             return feedAppService.createMessageResponse("Poll not found with id: " + id, HttpStatus.NOT_FOUND);
         }
+        Topic topic = poll.getTopic();
+        if (topic == null){
+            return feedAppService.createMessageResponse("Poll has no topic!", HttpStatus.CONFLICT);
+        }
+
         if (!userDataService.isUserTopicOwner(sessionId, poll.getTopic())) {
             return feedAppService.createMessageResponse("User is not the owner of the topic!", HttpStatus.UNAUTHORIZED);
         }

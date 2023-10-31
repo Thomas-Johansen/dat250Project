@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -57,9 +58,13 @@ public class AppConfig {
         http.authorizeHttpRequests((auth) -> auth
                 //To enable an url without logging in use the requstMatchers(url).permitAll()
                 .requestMatchers("/api/login").permitAll()
-                .requestMatchers("/api/poll").permitAll()
-                .requestMatchers("/api/vote").permitAll()
-                .requestMatchers("/api/votes").permitAll()
+
+                .requestMatchers(HttpMethod.GET,"/api/poll").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/votes").permitAll()
+
+                .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
+                .requestMatchers(HttpMethod.POST,"/api/vote").permitAll()
+
                 .anyRequest().authenticated());
 
         http.addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class);

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.jayway.jsonpath.JsonPath.read;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MvcTopicControllerTest {
+public class MvcUserTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,27 +47,28 @@ public class MvcTopicControllerTest {
 
     private Topic topic;
     private UserData user;
+    private Poll poll;
     private String sessionId;
+
 
     @BeforeAll
     public void setup() throws Exception {
-        System.out.println("Setup");
-
         topic = new Topic();
-        topic.setName("Ben's Amazing Topic?");
-        topic.setVoteOptions(List.of(new VoteOption(topic,"Good"), new VoteOption(topic, "Bad")));
+        topic.setName("Topico");
+        topic.setVoteOptions(List.of(new VoteOption(topic, "...")));
 
         user = new UserData();
-        user.setUsername("Ben?");
-        user.setEmail("inlook@coldmail.com");
-        user.setPassword(passwordEncoder.encode("123567"));
+        user.setUsername("John Impact");
+        user.setEmail("john@gmail.com");
+        user.setPassword(passwordEncoder.encode("999"));
         user.setTopics(List.of(topic));
 
-        Poll poll = new Poll();
+        poll = new Poll();
         poll.setTopic(topic);
-        poll.setRoomCode("20000");
+        poll.setRoomCode("UserRoom");
         poll.setStartDate(LocalDateTime.now());
         poll.setEndDate(LocalDateTime.MAX);
+        poll.setPrivate(true);
 
         topic.setOwner(user);
         topic.setPolls(List.of(poll));
@@ -75,12 +77,14 @@ public class MvcTopicControllerTest {
         userDataRepository.save(user);
         topicRepository.save(topic);
 
-        UserData u = new UserData();
-        u.setUsername(user.getUsername());
-        u.setPassword("123567");
+        UserData login = new UserData();
+        login.setUsername(user.getUsername());
+        login.setPassword("999");
 
         MvcResult response = mockMvc.perform(
-                post("/api/login").content(asJsonString(u)).contentType(MediaType.APPLICATION_JSON)
+                post("/api/login")
+                        .content(asJsonString(login))
+                        .contentType(MediaType.APPLICATION_JSON)
         ).andDo(print()).andReturn();
 
         sessionId = read(response.getResponse().getContentAsString(), "$.sessionId");
@@ -90,55 +94,60 @@ public class MvcTopicControllerTest {
 
     @Test
     @Order(1)
-    public void createTopic() throws Exception {
+    public void createUser() throws Exception {
+        UserData newUser = new UserData();
+        newUser.setUsername("Peter The Amazing");
+        newUser.setPassword("123");
+
         mockMvc.perform(
-                    post("/api/topic").header("Authorization",sessionId)
-                            .content(asJsonString(topic))
-                            .contentType(MediaType.APPLICATION_JSON)
+                        post("/api/user").header("Authorization", sessionId)
+                                .content(asJsonString(newUser))
+                                .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(newUser.getUsername()));
     }
 
     @Test
     @Order(2)
-    public void getTopic() throws Exception{
-        mockMvc.perform(get("/api/topic/"+topic.getId()).header("Authorization",sessionId))
+    public void getUser() throws Exception {
+        mockMvc.perform(
+                        get("/api/user")
+                                .header("Authorization", sessionId)
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(user.getUsername()));
     }
 
     @Test
     @Order(3)
-    public void putTopic() throws Exception{
-        List<VoteOption> voteOptions = List.of(new VoteOption(null,"no u"),new VoteOption(null,"heyo"));
+    public void putUser() throws Exception {
+        UserData updateUser = new UserData();
+        updateUser.setPassword("12345");
+        updateUser.setEmail("new@mail.com");
+
         mockMvc.perform(
-                        put("/api/topic/" + topic.getId()).header("Authorization",sessionId)
-                                .content(asJsonString(voteOptions))
+                        put("/api/user")
+                                .header("Authorization", sessionId)
+                                .content(asJsonString(updateUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(topic.getName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.voteOptions[0].label").value("no u"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(updateUser.getEmail()));
     }
 
     @Test
     @Order(4)
-    public void deleteTopic() throws Exception{
-        Topic deleteTopic = new Topic();
-        deleteTopic.setName("Delete this Topic");
-        deleteTopic.setOwner(user);
-
-        topicRepository.save(deleteTopic);
-
+    public void deleteUser() throws Exception {
         mockMvc.perform(
-                        delete("/api/topic/" + deleteTopic.getId()).header("Authorization",sessionId)
+                        delete("/api/user").header("Authorization", sessionId)
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+        assertNull(userDataRepository.getUserDataByUsername("John Impact"));
     }
 
     private String asJsonString(Object obj) {
