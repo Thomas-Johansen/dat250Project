@@ -28,9 +28,26 @@ public class IoTController {
         this.sessionRegistry = sessionRegistry;
     }
 
+    /**
+     * Get poll info by using the generated IoT token
+     * */
+    @GetMapping("/iot")
+    public ResponseEntity<Poll> getPollWithToken(@RequestParam String token){
+        String pollIdentifier = sessionRegistry.getPollIdForIoTSession(token);
+        if (pollIdentifier == null){
+            return feedAppService.createMessageResponse("Invalid IoT token", HttpStatus.NOT_FOUND);
+        }
+        Long pollId = Long.parseLong(pollIdentifier);
+        Poll poll = feedAppService.getPollRepository().getPollById(pollId);
+        if (poll == null){
+            return feedAppService.createMessageResponse("No poll with id: "+pollId, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(poll, HttpStatus.OK);
+    }
+
 
     /**
-     * Create a new Token for IoT
+     * Create and get a new IoT-Token
      * The token is connected to a specific poll.
      * Must be owner of Topic/Poll to generate token.
      */
@@ -117,17 +134,4 @@ public class IoTController {
         return feedAppService.createMessageResponse("Updated poll", HttpStatus.OK);
     }
 
-    @GetMapping("/iot")
-    public ResponseEntity<Poll> getPollWithToken(@RequestParam String token){
-        String pollIdentifier = sessionRegistry.getPollIdForIoTSession(token);
-        if (pollIdentifier == null){
-            return feedAppService.createMessageResponse("Invalid IoT token", HttpStatus.NOT_FOUND);
-        }
-        Long pollId = Long.parseLong(pollIdentifier);
-        Poll poll = feedAppService.getPollRepository().getPollById(pollId);
-        if (poll == null){
-            return feedAppService.createMessageResponse("No poll with id: "+pollId, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(poll, HttpStatus.OK);
-    }
 }
