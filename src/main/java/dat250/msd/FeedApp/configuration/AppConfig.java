@@ -61,11 +61,12 @@ public class AppConfig {
 
                 .requestMatchers(HttpMethod.GET,"/api/poll").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/votes").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/iot").permitAll()
 
                 .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/vote").permitAll()
-
                 .requestMatchers(HttpMethod.POST,"/api/iot/{pollId}").permitAll()
+
                 .requestMatchers(HttpMethod.PUT,"/api/iot").permitAll()
 
                 .anyRequest().authenticated());

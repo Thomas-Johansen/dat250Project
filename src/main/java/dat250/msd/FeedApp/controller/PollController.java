@@ -31,6 +31,8 @@ public class PollController {
         if (poll == null) {
             return feedAppService.createMessageResponse("No poll with roomCode: " + roomCode, HttpStatus.NOT_FOUND);
         }
+        // Hide other polls from output
+        poll.getTopic().setPolls(null);
         return new ResponseEntity<>(poll, HttpStatus.OK);
     }
 

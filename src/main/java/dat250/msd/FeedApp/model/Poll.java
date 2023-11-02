@@ -18,6 +18,7 @@ public class Poll {
 
     @Setter
     @ManyToOne
+    @JsonIdentityReference
     private Topic topic;
 
     @Setter

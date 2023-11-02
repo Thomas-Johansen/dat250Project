@@ -116,4 +116,18 @@ public class IoTController {
         }
         return feedAppService.createMessageResponse("Updated poll", HttpStatus.OK);
     }
+
+    @GetMapping("/iot")
+    public ResponseEntity<Poll> getPollWithToken(@RequestParam String token){
+        String pollIdentifier = sessionRegistry.getPollIdForIoTSession(token);
+        if (pollIdentifier == null){
+            return feedAppService.createMessageResponse("Invalid IoT token", HttpStatus.NOT_FOUND);
+        }
+        Long pollId = Long.parseLong(pollIdentifier);
+        Poll poll = feedAppService.getPollRepository().getPollById(pollId);
+        if (poll == null){
+            return feedAppService.createMessageResponse("No poll with id: "+pollId, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(poll, HttpStatus.OK);
+    }
 }
