@@ -65,6 +65,9 @@ public class AppConfig {
                 .requestMatchers(HttpMethod.POST,"/api/user").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/vote").permitAll()
 
+                .requestMatchers(HttpMethod.POST,"/api/iot/{pollId}").permitAll()
+                .requestMatchers(HttpMethod.PUT,"/api/iot").permitAll()
+
                 .anyRequest().authenticated());
 
         http.addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class);
