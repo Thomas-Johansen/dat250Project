@@ -2,6 +2,7 @@ package dat250.msd.FeedApp.ControllerTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dat250.msd.FeedApp.dto.RegisterDTO;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
 import dat250.msd.FeedApp.model.UserData;
@@ -95,8 +96,9 @@ public class MvcUserTest {
     @Test
     @Order(1)
     public void createUser() throws Exception {
-        UserData newUser = new UserData();
+        RegisterDTO newUser = new RegisterDTO();
         newUser.setUsername("Peter The Amazing");
+        newUser.setEmail("pet3r@4mzing.com");
         newUser.setPassword("123");
 
         mockMvc.perform(

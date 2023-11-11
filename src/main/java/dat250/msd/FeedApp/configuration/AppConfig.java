@@ -60,6 +60,7 @@ public class AppConfig {
                 .requestMatchers("/api/login").permitAll()
                 .requestMatchers("/api/logout").permitAll()
                 .requestMatchers("/api/register").permitAll()
+                .requestMatchers("/api/verify").permitAll()
 
                 .requestMatchers(HttpMethod.GET,"/api/poll").permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/votes").permitAll()

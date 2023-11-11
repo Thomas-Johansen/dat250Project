@@ -94,5 +94,21 @@ public class SessionRegistry {
             return SESSIONS.get(iotToken);
         }
     }
+
+    public Boolean verifySession(final String sessionId) {
+        try {
+            if(redisSessionStorage.get(sessionId) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (final Exception e) {
+            if(SESSIONS.get(sessionId) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
 }
 
