@@ -40,11 +40,19 @@ public class VoteController {
         if (poll == null){
             return feedAppService.createMessageResponse("No poll with roomCode: "+roomCode, HttpStatus.NOT_FOUND);
         }
+        if (!poll.isPrivate()){
+            return feedAppService.createMessageResponse("Can not find specific vote by user on a Public Poll!", HttpStatus.CONFLICT);
+        }
+
         UserData user = userDataService.getUserWithSessionId(sessionId);
         if (user == null){
             return feedAppService.createMessageResponse("Invalid sessionId.",HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(feedAppService.getVoteRepository().getVoteByPollAndVoter(poll,user),HttpStatus.OK);
+        Vote vote = feedAppService.getVoteRepository().getVoteByPollAndVoter(poll,user);
+        if (vote == null){
+            return feedAppService.createMessageResponse("Could not find vote by user on poll",HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(vote,HttpStatus.OK);
     }
 
     /**

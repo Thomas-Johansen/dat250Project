@@ -39,6 +39,10 @@ public class TopicController {
     public ResponseEntity<List<Topic>> getTopics(@RequestHeader("Authorization") String sessionId) {
         UserData user = userDataService.getUserWithSessionId(sessionId);
 
+        if (user == null) {
+            return feedAppService.createMessageResponse("Invalid session credentials", HttpStatus.NOT_FOUND);
+        }
+
         List<Topic> topics = feedAppService.getTopicRepository().getTopicsByOwner(user);
         if (topics == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

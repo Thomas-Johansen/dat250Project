@@ -16,6 +16,7 @@ import java.util.List;
  * */
 @Getter
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,12 +27,12 @@ public class Topic {
 
     @Setter
     @ManyToOne
-    @JsonBackReference(value = "user-poll")
+    @JsonBackReference(value = "user-topic")
     private UserData owner;
 
     @Setter
     @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
-    @JsonIdentityReference(alwaysAsId = true)
+    @JsonIdentityReference
     private List<Poll> polls;
 
     @Setter

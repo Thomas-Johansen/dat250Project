@@ -1,6 +1,5 @@
 package dat250.msd.FeedApp.session;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,6 @@ public class SessionRegistry {
 
     private final ValueOperations<String, String> redisSessionStorage;
 
-    @Autowired
     public SessionRegistry(final RedisTemplate<String, String> redisTemplate) {
         this.redisSessionStorage = redisTemplate.opsForValue();
     }
@@ -56,7 +54,6 @@ public class SessionRegistry {
     }
 
     public String getUsernameForSession(final String sessionId){
-
         try {
             return redisSessionStorage.get(sessionId);
         } catch (final Exception e) {
@@ -70,6 +67,32 @@ public class SessionRegistry {
         return new String(
                 Base64.getEncoder().encode(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8))
         );
+    }
+
+    // TODO separate storage for IoT sessions? + String -> Long?
+    public String registerIoTSession(String pollIdString) {
+        final String IoTSessionId = generateSessionId();
+        try {
+            // You can set a timeout on the session id in redis database
+            redisSessionStorage.set(IoTSessionId, pollIdString);
+            System.out.println("Using redis");
+        } catch (final Exception e) {
+            e.printStackTrace();
+            //If the redis storage does not work fall back to hashmap
+            System.out.println("Not using redis");
+            SESSIONS.put(IoTSessionId, pollIdString);
+        }
+        return IoTSessionId;
+    }
+
+    public String getPollIdForIoTSession(final String iotToken) {
+        try {
+            return redisSessionStorage.get(iotToken);
+        } catch (final Exception e) {
+            e.printStackTrace();
+            //If the redis storage does not work fall back to hashmap
+            return SESSIONS.get(iotToken);
+        }
     }
 }
 

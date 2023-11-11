@@ -47,7 +47,6 @@ public class UserController {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
-
         UserData createdUser = new UserData();
         createdUser.setUsername(user.getUsername());
         createdUser.setPassword(user.getPassword());
