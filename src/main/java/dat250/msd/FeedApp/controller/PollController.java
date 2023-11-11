@@ -9,12 +9,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Random;
+
 @RestController
 @RequestMapping("/api")
 public class PollController {
     private final FeedAppService feedAppService;
     private final VoteService voteService;
     private final UserDataService userDataService;
+
+    private Random random = new Random();
+    private HashSet<String> roomCodes = new HashSet();
 
     public PollController(FeedAppService feedAppService, VoteService voteService, UserDataService userDataService) {
         this.feedAppService = feedAppService;
@@ -67,6 +73,8 @@ public class PollController {
         if (!userDataService.isUserTopicOwner(sessionId, topic)) {
             return feedAppService.createMessageResponse("User is not owner of Topic.", HttpStatus.UNAUTHORIZED);
         }
+        //Generates a roomcode, which are stored in the hashmap serverside.
+        poll.setRoomCode(createRoomCode());
 
         String roomCode = poll.getRoomCode();
         if (feedAppService.getPollRepository().getPollByRoomCode(roomCode) != null) {
@@ -123,5 +131,16 @@ public class PollController {
         feedAppService.getPollRepository().delete(poll);
 
         return new ResponseEntity<>(poll, HttpStatus.OK);
+    }
+
+    public String createRoomCode() {
+        String roomCode = String.format("%04d%n", random.nextInt(10000));
+        if(!roomCodes.contains(roomCode)){
+            roomCodes.add(roomCode);
+            return String.format("%04d%n", random.nextInt(10000));
+        }
+        else {
+            return createRoomCode();
+        }
     }
 }

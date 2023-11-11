@@ -1,7 +1,9 @@
 package dat250.msd.FeedApp.controller;
 
+import dat250.msd.FeedApp.dto.RegisterDTO;
 import dat250.msd.FeedApp.dto.ResponseDTO;
 import dat250.msd.FeedApp.dto.UserDTO;
+import dat250.msd.FeedApp.service.FeedAppService;
 import dat250.msd.FeedApp.session.SessionRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

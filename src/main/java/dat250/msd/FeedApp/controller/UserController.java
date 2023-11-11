@@ -1,5 +1,6 @@
 package dat250.msd.FeedApp.controller;
 
+import dat250.msd.FeedApp.dto.RegisterDTO;
 import dat250.msd.FeedApp.dto.UserResponseDTO;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
@@ -40,12 +41,19 @@ public class UserController {
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/user")
-    public ResponseEntity<UserData> createUser(@RequestBody UserData user) {
+    //Swapped from /user to register, to open in the AppConfig (without opening all for everyone.
+    @PostMapping("/register")
+    public ResponseEntity<UserData> createUser(@RequestBody RegisterDTO user) {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(userDataService.createUser(user), HttpStatus.OK);
+
+        UserData createdUser = new UserData();
+        createdUser.setUsername(user.getUsername());
+        createdUser.setPassword(user.getPassword());
+        createdUser.setEmail(user.getEmail());
+
+        return new ResponseEntity<>(userDataService.createUser(createdUser), HttpStatus.OK);
     }
 
     /**

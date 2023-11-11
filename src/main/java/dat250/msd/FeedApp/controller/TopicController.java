@@ -37,15 +37,13 @@ public class TopicController {
 
     @GetMapping("/topic")
     public ResponseEntity<List<Topic>> getTopics(@RequestHeader("Authorization") String sessionId) {
-        String username = sessionRegistry.getUsernameForSession(sessionId);
-        System.out.println("SESSION ID: " + sessionId);
-
-        UserData user = userDataService.getUserWithSessionId(username);
+        UserData user = userDataService.getUserWithSessionId(sessionId);
 
         List<Topic> topics = feedAppService.getTopicRepository().getTopicsByOwner(user);
         if (topics == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 

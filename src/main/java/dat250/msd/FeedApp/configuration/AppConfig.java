@@ -60,6 +60,7 @@ public class AppConfig {
                 .requestMatchers("/api/poll").permitAll()
                 .requestMatchers("/api/vote").permitAll()
                 .requestMatchers("/api/votes").permitAll()
+                .requestMatchers("/api/register").permitAll()
                 .anyRequest().authenticated());
 
         http.addFilterBefore(sessionFilter, UsernamePasswordAuthenticationFilter.class);

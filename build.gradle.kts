@@ -36,6 +36,7 @@ dependencies {
 	implementation("com.squareup.okhttp3:okhttp:4.11.0")
 	implementation("com.hivemq:hivemq-mqtt-client:1.3.3")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+	implementation("com.github.caryyu:spring-embedded-redis-server:1.1")
 
 }
 
