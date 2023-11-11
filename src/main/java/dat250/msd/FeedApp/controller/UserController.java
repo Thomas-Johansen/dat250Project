@@ -1,6 +1,7 @@
 package dat250.msd.FeedApp.controller;
 
 import dat250.msd.FeedApp.dto.RegisterDTO;
+import dat250.msd.FeedApp.dto.ResponseDTO;
 import dat250.msd.FeedApp.dto.UserResponseDTO;
 import dat250.msd.FeedApp.model.Poll;
 import dat250.msd.FeedApp.model.Topic;
@@ -8,8 +9,12 @@ import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.model.Vote;
 import dat250.msd.FeedApp.service.UserDataService;
 import dat250.msd.FeedApp.service.VoteService;
+import dat250.msd.FeedApp.session.SessionRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import dat250.msd.FeedApp.service.FeedAppService;
 
@@ -22,6 +27,12 @@ public class UserController {
     private final FeedAppService feedAppService;
     private final UserDataService userDataService;
     private final VoteService voteService;
+
+    @Autowired
+    public BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    public SessionRegistry sessionRegistry;
 
     public UserController(FeedAppService feedAppService, UserDataService userDataService, VoteService voteService) {
         this.feedAppService = feedAppService;
@@ -43,16 +54,23 @@ public class UserController {
 
     //Swapped from /user to register, to open in the AppConfig (without opening all for everyone.
     @PostMapping("/register")
-    public ResponseEntity<UserData> createUser(@RequestBody RegisterDTO user) {
+    public ResponseEntity<ResponseDTO> createUser(@RequestBody RegisterDTO user) {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
         UserData createdUser = new UserData();
         createdUser.setUsername(user.getUsername());
-        createdUser.setPassword(user.getPassword());
+        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
         createdUser.setEmail(user.getEmail());
 
-        return new ResponseEntity<>(userDataService.createUser(createdUser), HttpStatus.OK);
+        userDataService.createUser(createdUser);
+
+        final String sessionId = sessionRegistry.registerSession(user.getUsername());
+
+        ResponseDTO response = new ResponseDTO();
+        response.setSessionId(sessionId);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
