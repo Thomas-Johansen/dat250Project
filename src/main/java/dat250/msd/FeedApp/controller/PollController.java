@@ -9,6 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -78,6 +83,13 @@ public class PollController {
         }
         //Generates a roomcode, which are stored in the hashmap serverside.
         poll.setRoomCode(createRoomCode());
+
+        //The poll receives a different format of date, which we need to make into our format.
+        LocalDateTime startDate = LocalDateTime.parse(poll.getStartDate().toString(), DateTimeFormatter.ISO_DATE_TIME);
+        poll.setStartDate(startDate);
+
+        LocalDateTime endDate = LocalDateTime.parse(poll.getEndDate().toString(), DateTimeFormatter.ISO_DATE_TIME);
+        poll.setEndDate(endDate);
 
         String roomCode = poll.getRoomCode();
         if (feedAppService.getPollRepository().getPollByRoomCode(roomCode) != null) {
