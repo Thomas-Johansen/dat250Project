@@ -14,6 +14,7 @@ public class Vote {
 
     @Setter
     @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
     private Poll poll;
 
     @Setter

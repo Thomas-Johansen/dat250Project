@@ -7,7 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.RedisServer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -61,7 +60,8 @@ public class FeedAppApplication {
         poll2.setRoomCode("4321");
         poll2.setTopic(topic);
         poll2.setStartDate(LocalDateTime.now());
-        poll2.setEndDate(LocalDateTime.now());
+        poll2.setEndDate(LocalDateTime.of(2023, 12, 24,12,0));
+        poll2.setPrivate(true);
 
         VoteOption voteOption1 = new VoteOption(topic,"Yes");
         VoteOption voteOption2 = new VoteOption(topic,"No");

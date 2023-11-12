@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class VoteController {
@@ -53,6 +55,25 @@ public class VoteController {
             return feedAppService.createMessageResponse("Could not find vote by user on poll",HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(vote,HttpStatus.OK);
+    }
+
+    /**
+     * Get a list of votes that belongs to the user.
+     **/
+    @GetMapping("/my-votes")
+    public ResponseEntity<List<Vote>> getVotes(@RequestHeader(name = "Authorization") String sessionId){
+        UserData user = userDataService.getUserWithSessionId(sessionId);
+        if (user == null){
+            return feedAppService.createMessageResponse("Invalid sessionId.",HttpStatus.UNAUTHORIZED);
+        }
+        List<Vote> votes = feedAppService.getVoteRepository().getVotesByVoter(user);
+        if (votes == null){
+            return feedAppService.createMessageResponse("Could not find votes by user on poll",HttpStatus.NOT_FOUND);
+        }
+        for (Vote vote : votes){
+            vote.getPoll().getTopic().setPolls(null);
+        }
+        return new ResponseEntity<>(votes,HttpStatus.OK);
     }
 
     /**

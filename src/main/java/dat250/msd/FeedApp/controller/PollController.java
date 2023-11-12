@@ -51,6 +51,7 @@ public class PollController {
         if (poll == null) {
             return feedAppService.createMessageResponse("No poll with id: " + id, HttpStatus.NOT_FOUND);
         }
+        poll.getTopic().setPolls(null);
         return new ResponseEntity<>(poll, HttpStatus.OK);
     }
 
