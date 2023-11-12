@@ -28,12 +28,6 @@ public class UserController {
     private final UserDataService userDataService;
     private final VoteService voteService;
 
-    @Autowired
-    public BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
-    public SessionRegistry sessionRegistry;
-
     public UserController(FeedAppService feedAppService, UserDataService userDataService, VoteService voteService) {
         this.feedAppService = feedAppService;
         this.userDataService = userDataService;
@@ -53,24 +47,12 @@ public class UserController {
     }
 
     //Swapped from /user to register, to open in the AppConfig (without opening all for everyone.
-    @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> createUser(@RequestBody RegisterDTO user) {
+    @PostMapping("/user")
+    public ResponseEntity<UserData> createUser(@RequestBody UserData user) {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
-        UserData createdUser = new UserData();
-        createdUser.setUsername(user.getUsername());
-        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        createdUser.setEmail(user.getEmail());
-
-        userDataService.createUser(createdUser);
-
-        final String sessionId = sessionRegistry.registerSession(user.getUsername());
-
-        ResponseDTO response = new ResponseDTO();
-        response.setSessionId(sessionId);
-
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(userDataService.createUser(user), HttpStatus.CREATED);
     }
 
     /**
