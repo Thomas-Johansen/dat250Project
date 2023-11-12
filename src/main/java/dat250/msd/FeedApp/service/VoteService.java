@@ -58,6 +58,9 @@ public class VoteService {
         }
 
         // Check if poll is still open
+        if (!poll.getStartDate().isBefore(LocalDateTime.now())){
+            return feedAppService.createMessageResponse("Vote Creation Failed: Poll is not yet open!",HttpStatus.CONFLICT);
+        }
         if (poll.getEndDate().isBefore(LocalDateTime.now())){
             return feedAppService.createMessageResponse("Vote Creation Failed: Poll is closed!",HttpStatus.CONFLICT);
         }

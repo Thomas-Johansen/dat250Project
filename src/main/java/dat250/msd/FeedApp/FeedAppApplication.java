@@ -66,15 +66,17 @@ public class FeedAppApplication {
         VoteOption voteOption1 = new VoteOption(topic,"Yes");
         VoteOption voteOption2 = new VoteOption(topic,"No");
 
-        Vote vote = new Vote();
-        vote.setPoll(poll);
-        vote.setVoteOption(voteOption1);
-        vote.setVoter(user);
-
         user.setTopics(List.of(topic));
 
         topic.setPolls(List.of(poll,poll2));
         topic.setVoteOptions(List.of(voteOption1,voteOption2));
+
+        topic2.setVoteOptions(List.of(new VoteOption(topic2, "1"),new VoteOption(topic2, "2"),new VoteOption(topic2, "3")));
+
+        Vote vote = new Vote();
+        vote.setPoll(poll);
+        vote.setVoteOption(voteOption1);
+        vote.setVoter(user);
 
         // save users
         userRepo.save(user);
