@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -138,5 +139,16 @@ public class TopicController {
         }
         feedAppService.getTopicRepository().delete(topic);
         return new ResponseEntity<>(topic, HttpStatus.OK);
+    }
+
+    @GetMapping("/voted-topics")
+    public ResponseEntity<List<Topic>> getVotedTopics(@RequestHeader("Authorization") String sessionId) {
+        UserData user = feedAppService.getUserDataRepository().getUserDataByUsername(sessionRegistry.getUsernameForSession(sessionId));
+        List<Vote> votes = feedAppService.getVoteRepository().getVotesByVoter(user);
+        List<Topic> result = new ArrayList<Topic>();
+        for (Vote vote : votes) {
+            result.add(vote.getPoll().getTopic());
+        }
+        return new ResponseEntity<>(result,HttpStatus.OK);
     }
 }

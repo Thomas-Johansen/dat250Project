@@ -142,10 +142,13 @@ public class PollController {
     }
 
     public String createRoomCode() {
-        String roomCode = String.format("%04d%n", random.nextInt(10000));
-        if(!roomCodes.contains(roomCode)){
-            roomCodes.add(roomCode);
-            return String.format("%04d%n", random.nextInt(10000));
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < 4; i++){
+            code.append(random.nextInt(0, 9));
+        }
+        if(!roomCodes.contains(code.toString())){
+            roomCodes.add(code.toString());
+            return code.toString();
         }
         else {
             return createRoomCode();
