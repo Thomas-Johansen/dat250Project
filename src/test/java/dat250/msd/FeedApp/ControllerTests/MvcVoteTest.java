@@ -105,12 +105,13 @@ public class MvcVoteTest {
         mockMvc.perform(
                         post("/api/vote")
                                 .header("Authorization", sessionId)
-                                .content(asJsonString(vote))
+                                .content(asJsonString(vote).replace("poll\":"+poll.getId(), "poll\":{\"id\":"+poll.getId()+"}"))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.poll.roomCode").value(poll.getRoomCode()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.poll").value(poll.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.voteOption.label").value("Hame"));
     }
 
     @Test

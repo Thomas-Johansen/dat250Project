@@ -18,7 +18,12 @@ public class RedisImplementation {
 
     @PostConstruct
     public void postConstruct() {
-        this.redisServer.start();
+        try{
+            this.redisServer.start();
+        }
+        catch (RuntimeException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @PreDestroy

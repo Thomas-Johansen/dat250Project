@@ -95,7 +95,7 @@ public class MvcPollTest {
     @Order(1)
     public void createPoll() throws Exception {
         System.out.println(sessionId);
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                         post("/api/poll/" + topic.getId()).header("Authorization", sessionId)
                                 .content(asJsonString(poll))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +103,8 @@ public class MvcPollTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.topic.name").value("Good or Bad?"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.private").value(false));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.private").value(false)).andReturn();
+        poll.setRoomCode(read(result.getResponse().getContentAsString(), "$.roomCode"));
     }
 
     @Test

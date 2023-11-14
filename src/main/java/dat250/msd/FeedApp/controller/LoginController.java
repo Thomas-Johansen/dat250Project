@@ -6,7 +6,6 @@ import dat250.msd.FeedApp.dto.UserDTO;
 import dat250.msd.FeedApp.model.UserData;
 import dat250.msd.FeedApp.service.FeedAppService;
 import dat250.msd.FeedApp.service.UserDataService;
-import dat250.msd.FeedApp.service.VoteService;
 import dat250.msd.FeedApp.session.SessionRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,18 +43,18 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity logout(@RequestHeader("Authorization") String sessionId) {
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String sessionId) {
         sessionRegistry.unregisterSession(sessionId);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>("Logged out.",HttpStatus.OK);
     }
 
     @PostMapping("/verify")
-    public ResponseEntity verify(@RequestHeader("Authorization") String sessionId) {
+    public ResponseEntity<String> verify(@RequestHeader("Authorization") String sessionId) {
         if(sessionRegistry.verifySession(sessionId)) {
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -64,6 +63,14 @@ public class LoginController {
         if (feedAppService.getUserDataRepository().existsByUsername(user.getUsername())) {
             return feedAppService.createMessageResponse("Username taken.", HttpStatus.CONFLICT);
         }
+        if (user.getPassword() == null || user.getPassword().length() < 5){
+            return feedAppService.createMessageResponse("Password must be of length 5",HttpStatus.BAD_REQUEST);
+        }
+        if (user.getEmail() == null || !user.getEmail().contains(("@"))){
+            return feedAppService.createMessageResponse("Invalid email.",HttpStatus.BAD_REQUEST);
+        }
+
+
         UserData createdUser = new UserData();
         createdUser.setUsername(user.getUsername());
         createdUser.setPassword(passwordEncoder.encode(user.getPassword()));

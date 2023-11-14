@@ -32,6 +32,9 @@ public class Analytics {
      */
     public void startPoll(Long pollId) {
         Poll poll = feedAppService.getPollRepository().getPollById(pollId);
+        if (poll == null){
+            return;
+        }
 
         createDweet(poll);
     }
@@ -42,6 +45,9 @@ public class Analytics {
      */
     public void endPoll(Long pollId) {
         Poll poll = feedAppService.getPollRepository().getPollById(pollId);
+        if (poll == null){
+            return;
+        }
 
         createDweet(poll);
         MqttMessage(poll);
