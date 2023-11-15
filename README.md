@@ -17,3 +17,4 @@ Below is some of the diagrams created during the planning stage of the project:
 ![Use Cases](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/Use%20cases.png?raw=true)
 ### UI demo
 ![UI demo](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/UserInterfaceDemo.png?raw=true)
+ 
