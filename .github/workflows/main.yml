@@ -34,7 +34,7 @@ jobs:
       - uses: actions/download-artifact@master
         with:
           name: jar-file
-          path: app.jar
+          path: FeedAppApplication.jar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
