@@ -2,7 +2,7 @@ FROM openjdk:17-jdk-alpine
 
 RUN mkdir /app
 
-COPY app.jar /app/app.jar
+COPY FeedAppApplication.jar /app/app.jar
 
 WORKDIR /app
 
