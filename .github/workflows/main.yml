@@ -1,7 +1,7 @@
 name: Docker CI with Gradle
 
 on:
-  puash:
+  push:
     branches: ["main"]
 
 permissions:
