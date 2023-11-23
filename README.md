@@ -2,7 +2,9 @@
 
 [![FeedApp Tests](../../actions/workflows/gradle.yml/badge.svg)](../../actions/workflows/gradle.yml)
 
-This repo contains a Poll-system application, that lets users create polls and vote on polls made by other users.
+This repo contains a Poll-system application, that lets users create polls and vote on polls made by other users.  
+
+Link to front end of the application: https://github.com/MikalDr/Dat250project-frontend  
 
 Below is some of the diagrams created during the planning stage of the project:
 ### Application flow diagram
@@ -15,3 +17,4 @@ Below is some of the diagrams created during the planning stage of the project:
 ![Use Cases](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/Use%20cases.png?raw=true)
 ### UI demo
 ![UI demo](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/UserInterfaceDemo.png?raw=true)
+ 
