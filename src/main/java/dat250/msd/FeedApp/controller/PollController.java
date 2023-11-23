@@ -9,12 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.Random;
 
 @RestController
@@ -24,8 +20,8 @@ public class PollController {
     private final VoteService voteService;
     private final UserDataService userDataService;
 
-    private Random random = new Random();
-    private HashSet<String> roomCodes = new HashSet();
+    private final Random random = new Random();
+    private int codeLength = 4;
 
     public PollController(FeedAppService feedAppService, VoteService voteService, UserDataService userDataService) {
         this.feedAppService = feedAppService;
@@ -81,8 +77,8 @@ public class PollController {
         if (!userDataService.isUserTopicOwner(sessionId, topic)) {
             return feedAppService.createMessageResponse("User is not owner of Topic.", HttpStatus.UNAUTHORIZED);
         }
-        //Generates a roomcode, which are stored in the hashmap serverside.
-        poll.setRoomCode(createRoomCode());
+        //Generates a unique roomCode.
+        poll.setRoomCode(createRoomCode(0));
 
         //The poll receives a different format of date, which we need to make into our format.
         LocalDateTime startDate = LocalDateTime.parse(poll.getStartDate().toString(), DateTimeFormatter.ISO_DATE_TIME);
@@ -153,17 +149,23 @@ public class PollController {
         return new ResponseEntity<>(poll, HttpStatus.OK);
     }
 
-    public String createRoomCode() {
-        StringBuilder code = new StringBuilder();
-        for (int i = 0; i < 4; i++){
-            code.append(random.nextInt(0, 9));
+    public String createRoomCode(int recursiveCount) {
+        if (recursiveCount >= 10){
+            recursiveCount = 0;
+            codeLength += 1;
         }
-        if(!roomCodes.contains(code.toString())){
-            roomCodes.add(code.toString());
+
+        // Generate new code
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < codeLength; i++){
+            code.append(random.nextInt(1, 10));
+        }
+
+        // See if code already is in use
+        Poll excistingPoll = feedAppService.getPollRepository().getPollByRoomCode(code.toString());
+        if(excistingPoll == null){
             return code.toString();
         }
-        else {
-            return createRoomCode();
-        }
+        return createRoomCode(recursiveCount);
     }
 }
