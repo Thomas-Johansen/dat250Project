@@ -7,6 +7,7 @@ This repo contains a Poll-system application, that lets users create polls and v
 Link to front end of the application: https://github.com/MikalDr/Dat250project-frontend  
 
 ## Docker Image:
+[![FeedApp Image build](../../actions/workflows/main.yml/badge.svg)](../../actions/workflows/main.yml)
 The docker image for the backend of the project can be found following this link:
 https://hub.docker.com/layers/mikaldr/dat250-project/latest/images/sha256-d272d2cd84f5c1bc056f3f0cfa49dbaccaf4415dc1fde1a50a4819182c6a4a1d?context=repo
 
