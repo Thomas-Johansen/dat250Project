@@ -1,20 +1,35 @@
-# Start with a base image that has Java 17 installed.
-FROM eclipse-temurin:17-jdk-jammy
+# Start with a base image containing Java runtime
+FROM openjdk:17-jdk-slim as build
 
-# Set a default directory inside the container to work from.
+# Add Maintainer Info
+LABEL maintainer="your.email@example.com"
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the special Maven files that help us download dependencies.
-COPY.mvn/.mvn
+# Copy the Gradle Wrapper and build.gradle files to the container
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
 
-# Copy only essential Maven files required to download dependencies.
-COPY mvnw pom.xml./
+# Copy the project source
+COPY src src
 
-# Download all the required project dependencies.
-RUN./mvnw dependency:resolve
+# Grant execution permissions to the Gradle Wrapper
+RUN chmod +x ./gradlew
 
-# Copy our actual project files (code, resources, etc.) into the container.
-COPY src./src
+# Build the application
+RUN ./gradlew clean build -x test
 
-# When the container starts, run the Spring Boot app using Maven.
-CMD ["./mvnw", "spring-boot:run"]
+# Start with a new, clean image for runtime
+FROM openjdk:11-jre-slim
+
+# Copy the built artifact from the build stage
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Expose the port the application runs on
+EXPOSE 8080
+
+# Run the jar file
+ENTRYPOINT ["java","-jar","/app.jar"]
