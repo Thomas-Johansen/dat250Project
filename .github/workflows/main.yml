@@ -56,4 +56,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: thearaseng/dockerized-spring-boot-app:${{ env.DATE }}
+          tags: Thomas-Johansen/dat250Project:latest
