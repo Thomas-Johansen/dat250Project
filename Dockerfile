@@ -23,7 +23,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew clean build -x test
 
 # Start with a new, clean image for runtime
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jre-slim
 
 # Copy the built artifact from the build stage
 COPY --from=build /app/build/libs/*.jar app.jar
