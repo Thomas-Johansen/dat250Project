@@ -56,4 +56,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: Thomas-Johansen/dat250Project:latest
+          tags: mikaldr/dat250-project:latest
