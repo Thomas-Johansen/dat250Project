@@ -31,7 +31,7 @@ Below is some of the diagrams created during the planning stage of the project:
 ### Architectural diagram
 ![AoT](Diagrams/ArchitecturalDiagram.png)
 ### Database diagram
-![Database Diagram](Diagrams/database.png)
+![Database Diagram](Diagrams/Database.png)
 ### Domain model
 ![Database Diagram](Diagrams/DomainModel.png)
 ### Use cases
