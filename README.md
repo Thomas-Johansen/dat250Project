@@ -16,24 +16,26 @@ https://hub.docker.com/layers/mikaldr/dat250-project/latest/images/sha256-d272d2
 #### to run the application:
 1. Pull the latest image using: `docker pull mikaldr/dat250-project:latest`
 2. Run the image using `docker run -d -p 8080:8080 mikaldr/dat250-project:latest`
-   This will open the port 8080 on your localmachine to the container.
+   This will open the port 8080 on your local-machine to the container.
 
 ## Running the application in a test environment
 When running the application in a test environment, one can run the application using
-their prefered IDE, which has support for Gradle projects.
+their preferred IDE, which has support for Gradle projects.
 
-We used IntelliJ for this, but you may use Eclipse if prefered.
+We used IntelliJ for this, but you may use Eclipse if preferred.
 
 ---
 Below is some of the diagrams created during the planning stage of the project:
 ### Application flow diagram
-![Applicataion Flow Diagram](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/Application%20Flow%20Diagram.png?raw=true)
-### AoT
+![Applicataion Flow Diagram](Diagrams/application_flow.png)
+### Architectural diagram
 ![AoT](Diagrams/ArchitecturalDiagram.png)
-### Database Diagram
-![Database Diagram](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/Database.drawio%20(4).png?raw=true)
+### Database diagram
+![Database Diagram](Diagrams/database.png)
+### Domain model
+![Database Diagram](Diagrams/DomainModel.png)
 ### Use cases
-![Use Cases](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/Use%20cases.png?raw=true)
-### UI demo
-![UI demo](https://github.com/Thomas-Johansen/dat250Project/blob/main/Diagrams/UserInterfaceDemo.png?raw=true)
+![Use Cases](Diagrams/UseCases.png)
+### UI design mockup
+![UI demo](Diagrams/UIDesign.png)
  
