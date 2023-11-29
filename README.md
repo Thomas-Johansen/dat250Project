@@ -33,7 +33,7 @@ Below is some of the diagrams created during the planning stage of the project:
 ### Database diagram
 ![Database Diagram](Diagrams/Database.png)
 ### Domain model
-![Database Diagram](Diagrams/DomainModel.png)
+![Database Diagram](Diagrams/Domain_Model.png)
 ### Use cases
 ![Use Cases](Diagrams/UseCases.png)
 ### UI design mockup
